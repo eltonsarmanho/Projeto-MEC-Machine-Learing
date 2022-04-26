@@ -253,13 +253,11 @@ def correlation(dataframe):
 
 
 if __name__ == '__main__':
-    #url_csv = "../Dataset/turmas_update.csv"
-    #url_csv = "../Dataset/escolas.csv"
-    #url_csv = "../Dataset/turmas.csv"
+
     url_csv = "../Dataset/matricula_norte.csv"
     dataset_matricula = lazyloadData(url_csv)
     url_csv = "../Dataset/escolas.csv"
     dataset_escola  = loadData(url_csv)
-    #url_csv = "../Dataset/escola_update.csv"
-    #dataframe = pd.read_csv(url_csv,delimiter='\t' )
+
+
     mergeData(dataset_matricula,dataset_escola)
