@@ -144,7 +144,7 @@ def loadData(name):
                           sep='\t', encoding='utf-8',index=False)
     return dataset_reduce
 
-def agrupamentoEscola(dataframe,filtered_df):
+def merge(dataframe,filtered_df):
     columns =  ['QT_PROF_PSICOLOGO','QT_PROF_FONAUDIOLOGO','QT_PROF_ASSIST_SOCIAL',
                 'IN_MATERIAL_PED_NENHUM','IN_INTERNET_ALUNOS',
                 'IN_ACESSO_INTERNET_COMPUTADOR','IN_ACESSIBILIDADE_INEXISTENTE',
@@ -205,7 +205,7 @@ def mergeData(url_csv_matricula,url_csv_escola):
     #correlation(filtered_df.drop(columns=['CO_ENTIDADE'], axis=1))
     filter_escola_matricula = dataset_escola['CO_ENTIDADE'].isin(dataset_matricula['CO_ENTIDADE'])
 
-    dataset_escola_filtered = agrupamentoEscola(dataset_escola[filter_escola_matricula],filtered_df)
+    dataset_escola_filtered = merge(dataset_escola[filter_escola_matricula],filtered_df)
     print('Shape escola com alunos matriculados ', dataset_escola_filtered.shape)
     #print(dataset_escola_filtered.info())
     #print(dataset_escola_filtered.describe())
