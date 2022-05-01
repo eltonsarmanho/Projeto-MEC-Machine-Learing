@@ -38,6 +38,36 @@ def plotDiscriminate(dataset):
 
 
     pass;
+
+def plotKernelNotas(dataset):
+    dataset.NIVEL_1_MT5.dropna(axis=0,inplace=True)
+    dataset_norte = dataset[dataset['ID_REGIAO'] == 'Norte'].copy()
+    dataset_regioes = dataset[dataset['ID_REGIAO'] != 'Norte'].copy()
+    # Filtrar dataset em região
+    sns.distplot(dataset_norte.NIVEL_1_MT5,
+                rug = True,hist=False,
+                label='Norte',color='red')
+
+    # Filtrar dataset em região
+    sns.distplot(dataset_regioes.NIVEL_1_MT5,
+                hist=False,
+                label='Norte', color='blue')
+    plt.show()
+
+def beeswarmsUF(dataset):
+    dataset.TAXA_PARTICIPACAO_EMT.dropna(axis=0, inplace=True)
+    dataset_regiao = dataset[dataset['ID_REGIAO'] == 'Sul'].copy()
+    print("Shape ", dataset_regiao.shape)
+    # Filtrar dataset em região
+    sns.swarmplot(y=dataset.ID_UF,
+                  x=dataset.TAXA_PARTICIPACAO_EMT,
+                  data=dataset_regiao,
+                  # Decrease the size of the points to avoid crowding
+                  size=1)
+
+    # Give a descriptive title
+    plt.title('NIVEL_1_MT5 by Região')
+    plt.show()
 if __name__ == '__main__':
-    df = loadData()
-    plotDiscriminate(df)
+    dataset = loadData()
+    beeswarmsUF(dataset)
