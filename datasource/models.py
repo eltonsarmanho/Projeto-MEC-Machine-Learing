@@ -21,7 +21,7 @@ class Aluno(models.Model):
     nome_mae = models.CharField('Nome da Mãe', max_length=100, null=True)
 
 class Representante(models.Model):
-    escola = models.ManyToManyField(Escola, on_delete=models.CASCADE, null=False)
+    escola = models.ManyToManyField(Escola, null=False)
     nome = models.CharField('Nome do Representante', max_length=150, null=False)
     cpf = models.CharField('CPF', max_length=15, null=False)
 
