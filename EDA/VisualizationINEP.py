@@ -10,7 +10,7 @@ import  empiricaldist
 import scipy
 def loadData():
     try:
-        dataset = pd.read_csv("../Dataset/inep_sabe_merge_all.csv",low_memory=False);
+        dataset = pd.read_csv("../Dataset/dataset_escola_filtered.csv",low_memory=False);
 
         #for key, value in dict_uf.items():
         #    dataset.loc[dataset["ID_UF"] == str(key) , "ID_UF"] = value

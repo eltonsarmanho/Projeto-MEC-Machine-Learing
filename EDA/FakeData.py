@@ -16,8 +16,7 @@ from sklearn import tree
 import pydotplus
 import matplotlib.image as mpimg
 from sklearn import tree
-import graphviz
-from dtreeviz.trees import dtreeviz # remember to load the package
+
 
 def generate_fake_dataframe(size, cols, col_names=None, intervals=None, seed=None):
     categories_dict = {
