@@ -17,6 +17,7 @@ def loadData():
     except:
         print("Oops!", sys.exc_info()[0], "occurred.")
 
+
 def analiseFactorial(dataset):
     # Dropping unnecessary columns
 
