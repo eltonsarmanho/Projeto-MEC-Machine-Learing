@@ -37,7 +37,7 @@ def checkFeasibility(dataset):
     cols_to_drop = nunique[nunique == 1].index
     dataset_reduce = dataset_reduce.drop(cols_to_drop, axis=1)
     print("Dimensionality reduced from {} to {}.".format(dataframe.shape, dataset_reduce.shape))
-    print(dataset.columns)
+    print(dataset_reduce.columns)
 
     chi_square_value, p_value = calculate_bartlett_sphericity(dataset_reduce)
     print(chi_square_value, p_value);
@@ -83,7 +83,7 @@ def checkFeasibility(dataset):
     plt.figure(figsize=(8, 6))
     sns.set(font_scale=.9)
     sns.heatmap(factorLoadings, linewidths=1, linecolor='#ffffff', cmap="YlGnBu", xticklabels=1, yticklabels=1)
-
+    plt.show()
 if __name__ == '__main__':
     dataframe = load()
     checkFeasibility(dataframe)
