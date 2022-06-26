@@ -50,7 +50,7 @@ def runDimensionReduction(url, nameNewFile=None):
         print("Read csv without chunks: ", (end - start), "sec")
 
         #dataset_reduce = transformData(dataframe)
-        dataframe.to_csv('../Dataset/'+nameNewFile,sep='\t', encoding='utf-8', index=False,single_file=True)
+        dataframe.to_csv('../Dataset/2017/'+nameNewFile,sep='\t', encoding='utf-8', index=False,single_file=True)
         print(dataframe.shape)
         #return dataframe
     except:
@@ -73,18 +73,17 @@ def transformData(dataset_reduce):
     #    print(dataset_reduce[item].describe())
     return dataset_reduce
 
-def splitFileWithDask():
-    file_path = "/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/Sudeste/MATRICULA_SUDESTE.CSV"
+def splitFileWithDask(file):
+    file_path = "../Dataset/2017/"+file+".CSV"
     df = dd.read_csv(file_path)
     # set how many file you would like to have
     # in this case 10
     df = df.repartition(npartitions=10)
-    df.to_csv("../Dataset/Sudeste/MATRICULA_SUDESTE_file_*.csv")
+    df.to_csv("../Dataset/2017/"+file+"_file_*.csv")
 
 def concatCSV():
     # setting the path for joining multiple files
-    files = os.path.join("/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/",
-                         "matricula_reduzido_*.csv")
+    files = os.path.join("../Dataset/","matricula_reduzido_*.csv")
     CHUNK_SIZE = 1024
     # list of merged files returned
     files = glob.glob(files)
@@ -101,17 +100,15 @@ def concatCSV():
     # joining files using read_csv withou chunk
     # combined_csv = pd.concat(map(pd.read_csv(sep='\t'), files), ignore_index=True)
     combined_csv = pd.concat([pd.read_csv(f, sep='\t') for f in files], ignore_index=True)
-    combined_csv.to_csv('/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/matricula_reduzido_.csv',
-                        sep='\t', encoding='utf-8', index=False)
+    combined_csv.to_csv('../Dataset/matricula_reduzido_.csv',sep='\t', encoding='utf-8', index=False)
     print(combined_csv.shape)
 
-def concatCSVbyRows():
-    files = os.path.join("/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/",
-                         "matricula_*.csv")
+def concatCSVbyRows(filefind,file):
+    files = os.path.join("../Dataset/2017",filefind+"*.csv")
 
     all_files = glob.glob(files)
     print(all_files)
-    out_file = '/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/out.csv';
+    out_file = '../Dataset/2017/'+file+'.csv';
     with open(out_file, 'w') as outfile:
         for i, filename in enumerate(all_files):
             print(i, filename)
@@ -120,18 +117,6 @@ def concatCSVbyRows():
                     if (i != 0) and (rownum == 0):  # Only write header once
                         continue
                     outfile.write(line + '\n')
-
-def concatCSVWithDask():
-    file_in = '/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/matricula_*.csv'
-    file_out = '/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/matricula_out_all.csv'
-    df_1 = dd.read_csv(file_in, sep='\t')
-    print(df_1.shape)
-    df_2 = dd.read_csv(file_out, sep='\t')
-    print(df_2.shape)
-    df_all = dd.concat([df_1, df_2])
-    print(df_all.shape)
-    df_all.to_csv('/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/xxx.csv', sep='\t', encoding='utf-8', index=False)
-
 
 def loadMatriculaWithDask(url, separate=None, newFile=None):
     start = time.time()
@@ -162,7 +147,6 @@ def removeColumnWithDask(url, separate=None, newFile=None):
 
     print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
 
-
 def calculateMissingValues(nyc_data_raw):
     print("Detect missing values.")
     start = time.time()
@@ -179,22 +163,27 @@ def loadMatriculaWithPandas(url):
     print("Read csv without chunks: ", (end - start), "sec")
     print(dataframe.shape)
 
-
-
 if __name__ == '__main__':
-    #splitFileWithDask()
+    #Passo 1: Quebrar os arquivos
+    #Arquivos da base de dados
+    file = 'MATRICULA_NORDESTE'
+    file_out='matricula_nordeste_reduzido_'
 
-    #Reduz numero de dimensões
-    #for n in ['5','6','7','8','9']:
-    #    url_csv = '../Dataset/Sudeste/MATRICULA_SUDESTE_file_'+n+'.csv'
-    #    runDimensionReduction(url_csv,'matricula_sudeste_reduzido_'+n+'.csv')
+    print("Inicia Split File")
+    splitFileWithDask(file)
+    print("Finaliza Split File")
 
-    #Remove index files
-    #for n in range(0,10):
-    #    loadMatriculaWithDask('../Dataset/matricula_sudeste_reduzido__'+str(n)+'.csv')
+    print("Inicia Redução de Dimensão")
+    #Passo 2: Reduz numero de dimensões
+    for n in range(0,10):
+        url_csv = '../Dataset/2017/'+file+'_file_'+str(n)+'.csv'
+        runDimensionReduction(url_csv,file_out+str(n)+'.csv')
+    print("Finaliza Redução de Dimensão")
 
-    #Realiza Merge dos arquivos - Se caso separou os arquivos
-    #concatCSVbyRows()
+    #Passo 3: Realiza Merge dos arquivos - Se caso separou os arquivos
+    print("Inicia Merge de Linhas")
+    concatCSVbyRows('matricula_nordeste_','matricula_reduzido_nordeste')
+    print("Finaliza Merge de Linhas")
 
-    # Load data with Dask
-    loadMatriculaWithDask('../Dataset/matricula_reduzido_all_2019.csv',)
+    #Load data with Dask
+    #loadMatriculaWithDask('../Dataset/2017/matricula_reduzido_all_2017.csv',)
