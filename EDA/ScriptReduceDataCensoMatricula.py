@@ -183,17 +183,11 @@ def calculateMissingValues(nyc_data_raw):
     end = time.time()
     print("Read csv with Dask: ", (end - start), "sec")
 
-def loadMatriculaWithPandas(url):
-    start = time.time()
-    dataframe = pd.read_csv(url, sep='\t')
-    end = time.time()
-    print("Read csv without chunks: ", (end - start), "sec")
-    print(dataframe.shape)
 
 if __name__ == '__main__':
     #Passo 1: Quebrar os arquivos
     #Arquivos da base de dados
-    region = 'co'
+    region = 'norte'
     file = 'MATRICULA_'+region.upper()
     file_out_split='MATRICULA_'+region.upper()+'_REDUZIDO_'
     file_out_split_remove = 'MATRICULA_'+region.upper()+'_REDUZIDO_REMOVE_'
@@ -235,7 +229,7 @@ if __name__ == '__main__':
     end = time.time()
     print("Finaliza Merge em : ", (end - start), "sec")
 
-    #Passo 4: Concat todos as regioes apos terminar TODAS as regioes
+    #Passo 5: Concat todos as regioes apos terminar TODAS as regioes
     #concatCSV()
     #Load data with Dask
     #loadMatriculaWithDask('../Dataset/2017/matricula_nordeste_reduzido_00.csv','\t')
