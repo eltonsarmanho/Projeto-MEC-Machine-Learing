@@ -17,12 +17,13 @@ import csv
 import os
 
 def loadData(indice):
+
     start = time.time()
-    dataset_escola = pd.read_csv('../Dataset/escola_update.csv', sep='\t',)
-    dataset_matricula  = pd.read_csv('../Dataset/all/matricula_reduzido_all_2019_'+str(indice)+'.csv', low_memory=True, sep='\t')
+    dataset_escola = pd.read_csv('../Dataset/2017/escola_update.csv', sep='\t',)
+    dataset_matricula  = pd.read_csv('../Dataset/2017/matricula_reduzido_all_2017_'+str(indice)+'.csv', low_memory=True, sep='\t')
 
     end = time.time()
-    print("Read csv without Dask: ", (end - start), "sec")
+    print("Read csv: ", (end - start), "sec")
     print(dataset_escola.shape)
     print(dataset_matricula.shape)
 
@@ -42,8 +43,8 @@ def calculateMissingValues(nyc_data_raw):
     end = time.time()
     print("Read csv with Dask: ", (end - start), "sec")
 
-def calculateIndicators(dataset_escola, dataset_matricula,indice):
-    start = time.time()
+def calculateIndicators(dataset_escola, dataset_matricula,indice=None):
+
     columns = dataset_matricula.columns;
     filtered = filter(lambda name: name.find("IN_") != -1, columns);
 
@@ -71,14 +72,10 @@ def calculateIndicators(dataset_escola, dataset_matricula,indice):
     print("Check duplicidade: ", df_result['CO_ENTIDADE'].duplicated().any())
     print('Shape dataframe estatistica Escola ', df_result.shape)
 
-    df_result.to_csv('/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/dataset_escola_filtered_'+str(indice)+'.csv',sep='\t', encoding='utf-8',index=False)
-
-    end = time.time()
-    print("Running process: ", (end - start), "sec")
-
+    df_result.to_csv('../Dataset/2017/dataset_escola_filtered_'+str(indice)+'.csv',sep='\t', encoding='utf-8',index=False)
 
 def splitFileWithDask():
-    file_path = "/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/matricula_reduzido_all_2019.csv"
+    file_path = "../Dataset/2017/matricula_reduzido_all_2017.csv"
     df = dd.read_csv(file_path,
     dtype={'CO_ENTIDADE': 'float64',
        'CO_MESORREGIAO': 'float64',
@@ -98,12 +95,12 @@ def splitFileWithDask():
     print(df.shape)
     # set how many file you would like to have
     # in this case 10
-    df = df.repartition(npartitions=10)
-    df.to_csv("../Dataset/all/matricula_reduzido_all_2019_*.csv",sep='\t', encoding='utf-8', index=False)
+    df = df.repartition(npartitions=35)
+    df.to_csv("../Dataset/2017/matricula_reduzido_all_2017_*.csv",sep='\t', encoding='utf-8', index=False)
 
 def concatCSV():
     # setting the path for joining multiple files
-    files = os.path.join("/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/",
+    files = os.path.join("../Dataset/2017",
                          "dataset_escola_filtered_*.csv")
 
     CHUNK_SIZE = 1024
@@ -122,14 +119,46 @@ def concatCSV():
     # joining files using read_csv withou chunk
     # combined_csv = pd.concat(map(pd.read_csv(sep='\t'), files), ignore_index=True)
     combined_csv = pd.concat([pd.read_csv(f, sep='\t') for f in files], ignore_index=True)
-    combined_csv.to_csv('/home/eltonss/PycharmProjects/Projeto-MEC-Machine-Learing/Dataset/out.csv',
-                        sep='\t', encoding='utf-8', index=False)
+    combined_csv.to_csv('../Dataset/2017/dataset_escola_filtered_parcial.csv',sep='\t', encoding='utf-8', index=False)
     print(combined_csv.shape)
 
 if __name__ == '__main__':
+    #1° Passo: Split File
+    start = time.time()
     #splitFileWithDask()
-    for n in range(0,10):
-        dataset_matricula,dataset_escola = loadData(n)
-        calculateIndicators(dataset_escola, dataset_matricula,n)
+    end = time.time()
+    print("Running process of split: ", (end - start), "sec")
 
-    concatCSV()
+    #2° Passo: Calculator Indicator
+    start = time.time()
+    #for i in range(35):
+    #    indice = "%.2d" % i
+    #    dataset_matricula,dataset_escola = loadData(indice)
+    #    calculateIndicators(dataset_escola, dataset_matricula, indice)
+
+    end = time.time()
+    print("Running process of split: ", (end - start), "sec")
+
+    # 3° Passo: Concat Files
+    start = time.time()
+    #concatCSV()
+    end = time.time()
+    print("Running process of Concat: ", (end - start), "sec")
+
+    #4° Passo: Novo Agrupamento e novo arquivo
+    dataset_escola_matricula = pd.read_csv('../Dataset/2017/dataset_escola_filtered_parcial.csv', sep='\t', )
+    colunas = dataset_escola_matricula.columns
+    print(dataset_escola_matricula.shape)
+    estatistica_alunos_por_escola = dataset_escola_matricula.groupby(['CO_ENTIDADE'], as_index=False).agg(["sum"],
+                                                                                                            split_out=8)
+    estatistica_alunos_por_escola = estatistica_alunos_por_escola.reset_index()
+    # print(estatistica_alunos_por_escola.head(5))
+
+    # Padronizar colunas devido agrupamento
+    estatistica_alunos_por_escola.columns = colunas
+
+    # Check duplicidade
+    print("Check duplicidade: ", estatistica_alunos_por_escola['CO_ENTIDADE'].duplicated().any())
+
+    estatistica_alunos_por_escola.to_csv('../Dataset/2017/dataset_escola_filtered.csv', sep='\t', encoding='utf-8',index=False)
+

@@ -18,26 +18,25 @@ import os
 
 
 
-def runDimensionReduction(url, nameNewFile=None):
+def runDimensionReduction(url):
     try:
 
 
-        start = time.time()
+
         #dataframe = dd.read_csv(url, sep='|',  dtype='object')
         #dataset_reduce = pd.read_csv(url, sep='|', usecols=lambda x: x not in drop_columns )
-        dataset = pd.read_csv(url, delimiter=',',
-                                     encoding="utf-8", )
-
+        dataset = pd.read_csv(url, delimiter=',', encoding="utf-8", )
+        print(dataset.shape)
         columns = dataset.columns;
         #columns_drop_1 = filter(lambda name: name.find("NIVEL_") != -1, columns);
         #columns_drop_2 = filter(lambda name: name.find("TAXA_") != -1, columns);
         #columns_drop_3 = filter(lambda name: name.find("PC_") != -1, columns);
 
-        columns_selected = list(filter(lambda name: name.find("_EM") != -1, columns));
+        columns_selected = list(filter(lambda name: name.find("MEDIA") != -1, columns));
         columns_selected.append('ID_ESCOLA')
         columns_selected.append('ID_SAEB')
         #print(columns_selected)
-
+        #print(dataset.columns.difference(columns_selected))
 
         #columns_drop = list(columns_drop_1)+list(columns_drop_2)+list(columns_drop_3)
         dataset_reduce = dataset.drop(dataset.columns.difference(columns_selected),axis= 1)
@@ -46,11 +45,7 @@ def runDimensionReduction(url, nameNewFile=None):
         print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
         #dataset_reduce.update(dataset_reduce[['NO_ENTIDADE']].applymap('"{}"'.format))
 
-        end = time.time()
-        print("Read csv: ", (end - start), "sec")
         print(dataset_reduce.columns)
-        # dataset_reduce = transformData(dataframe)
-        #dataset_reduce.to_csv('../Dataset/' + nameNewFile,sep='\t', encoding='utf-8',index=False)
         return dataset_reduce
     except:
         print("Oops!", sys.exc_info(), "occurred.");
@@ -64,18 +59,22 @@ def calculateMissingValues(dataframe):
     end = time.time()
     print("Read: ", (end - start), "sec")
 
-def merge(dataset_escola_saeb):
+def merge(censo,dataset_escola_saeb,ano):
     print('Merge Method')
-    start = time.time()
-    dataset_censo_escola_matricula = pd.read_csv('../Dataset/escola_matricula.csv', delimiter='\t',encoding="utf-8", )
+    dataset_censo_escola_matricula = pd.read_csv(censo, delimiter='\t',encoding="utf-8", )
     print(dataset_censo_escola_matricula.shape)
+    print("Check duplicidade: ", dataset_censo_escola_matricula['CO_ENTIDADE'].duplicated().any())
     df_result = pd.merge(dataset_escola_saeb,dataset_censo_escola_matricula, on='CO_ENTIDADE')
     print(df_result.shape)
-    end = time.time()
-    df_result.to_csv('../Dataset/inep_sabe_merge_2019_new.csv', sep='\t', encoding='utf-8', index=False)
-    print("Read csv in merge: ", (end - start), "sec")
+    # Check duplicidade
+    print("Check duplicidade: ", df_result['CO_ENTIDADE'].duplicated().any())
+    df_result.to_csv('../Dataset/2017/inep_sabe_merge_'+str(ano)+'.csv', sep='\t', encoding='utf-8', index=False)
 
 if __name__ == '__main__':
-    url_csv = '../Dataset/TS_ESCOLA.csv'
-    dataset_escola_saeb = runDimensionReduction(url_csv,'ts_escola_update.csv')
-    merge(dataset_escola_saeb)
+    start = time.time()
+    url_csv = '../Dataset/2017/TS_ESCOLA.csv'
+    dataset_escola_saeb = runDimensionReduction(url_csv)
+    censo = '../Dataset/2017/dataset_escola_filtered.csv'
+    merge(censo,dataset_escola_saeb,2017)
+    end = time.time()
+    print("Running process: ", (end - start), "sec")

@@ -229,7 +229,3 @@ if __name__ == '__main__':
     end = time.time()
     print("Finaliza Merge em : ", (end - start), "sec")
 
-    #Passo 5: Concat todos as regioes apos terminar TODAS as regioes
-    #concatCSV()
-    #Load data with Dask
-    #loadMatriculaWithDask('../Dataset/2017/matricula_nordeste_reduzido_00.csv','\t')
