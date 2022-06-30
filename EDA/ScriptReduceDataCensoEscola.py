@@ -59,8 +59,7 @@ def runDimensionReduction(url, nameNewFile=None,ano=None):
         #dataframe = dd.read_csv(url, sep='|',  dtype='object')
         #dataset_reduce = pd.read_csv(url, sep='|', usecols=lambda x: x not in drop_columns )
         #Abrir arquivo setar utf-8
-        dataset_reduce = pd.read_csv(url, sep='|',
-                                     encoding="utf-8",usecols=lambda x: x not in drop_columns )
+        dataset_reduce = pd.read_csv(url, sep='|', encoding="utf-8",usecols=lambda x: x not in drop_columns )
 
         #print("Dimensionality reduced from {} to {}.".format(dataframe.shape, dataset_reduce.shape))
         dataset_reduce.update(dataset_reduce[['NO_ENTIDADE']].applymap('"{}"'.format))

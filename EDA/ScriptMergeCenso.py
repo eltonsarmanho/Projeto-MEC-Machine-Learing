@@ -98,9 +98,9 @@ def splitFileWithDask(ano):
     df = df.repartition(npartitions=35)
     df.to_csv("../Dataset/"+str(ano)+"/matricula_reduzido_all_"+str(ano)+"_*.csv",sep='\t', encoding='utf-8', index=False)
 
-def concatCSV():
+def concatCSV(ano):
     # setting the path for joining multiple files
-    files = os.path.join("../Dataset/2017",
+    files = os.path.join("../Dataset/"+ano,
                          "dataset_escola_filtered_*.csv")
 
     CHUNK_SIZE = 1024
@@ -119,34 +119,35 @@ def concatCSV():
     # joining files using read_csv withou chunk
     # combined_csv = pd.concat(map(pd.read_csv(sep='\t'), files), ignore_index=True)
     combined_csv = pd.concat([pd.read_csv(f, sep='\t') for f in files], ignore_index=True)
-    combined_csv.to_csv('../Dataset/2017/dataset_escola_filtered_parcial.csv',sep='\t', encoding='utf-8', index=False)
+    combined_csv.to_csv('../Dataset/'+ano+'/dataset_escola_filtered_parcial.csv',sep='\t', encoding='utf-8', index=False)
     print(combined_csv.shape)
 
 if __name__ == '__main__':
+    ano = str(2019)
     #1° Passo: Split File
     start = time.time()
-    splitFileWithDask()
+    #splitFileWithDask(ano)
     end = time.time()
     print("Running process of split: ", (end - start), "sec")
 
     #2° Passo: Calculator Indicator
     start = time.time()
-    #for i in range(35):
-    #    indice = "%.2d" % i
-    #    dataset_matricula,dataset_escola = loadData(indice)
-    #    calculateIndicators(dataset_escola, dataset_matricula, indice)
+    for i in range(35):
+        indice = "%.2d" % i
+        dataset_matricula,dataset_escola = loadData(indice,ano)
+        calculateIndicators(dataset_escola, dataset_matricula,ano, indice)
 
     end = time.time()
     print("Running process of split: ", (end - start), "sec")
 
     # 3° Passo: Concat Files
     start = time.time()
-    #concatCSV()
+    concatCSV(ano)
     end = time.time()
     print("Running process of Concat: ", (end - start), "sec")
 
     #4° Passo: Novo Agrupamento e novo arquivo
-    dataset_escola_matricula = pd.read_csv('../Dataset/2017/dataset_escola_filtered_parcial.csv', sep='\t', )
+    dataset_escola_matricula = pd.read_csv('../Dataset/'+ano+'/dataset_escola_filtered_parcial.csv', sep='\t', )
     colunas = dataset_escola_matricula.columns
     print(dataset_escola_matricula.shape)
     estatistica_alunos_por_escola = dataset_escola_matricula.groupby(['CO_ENTIDADE'], as_index=False).agg(["sum"],
@@ -160,5 +161,5 @@ if __name__ == '__main__':
     # Check duplicidade
     print("Check duplicidade: ", estatistica_alunos_por_escola['CO_ENTIDADE'].duplicated().any())
 
-    estatistica_alunos_por_escola.to_csv('../Dataset/2017/dataset_escola_filtered.csv', sep='\t', encoding='utf-8',index=False)
+    estatistica_alunos_por_escola.to_csv('../Dataset/'+ano+'/dataset_escola_filtered.csv', sep='\t', encoding='utf-8',index=False)
 

@@ -75,6 +75,7 @@ def splitFileWithDask(file,ano):
     file_path = "../Dataset/"+str(ano)+"/"+file+".CSV"
     dataframe = dd.read_csv(file_path,sep='|',dtype={'CO_MUNICIPIO_END': 'float64',
        'CO_MUNICIPIO_NASC': 'float64',
+       'TP_LOCAL_RESID_DIFERENCIADA': 'float64',
        'CO_UF_END': 'float64',
        'CO_UF_NASC': 'float64',
        'IN_EJA': 'float64',
@@ -185,7 +186,7 @@ def calculateMissingValues(nyc_data_raw):
 
 if __name__ == '__main__':
     ano = 2019
-    region = 'sudeste'
+    region = 'sul'
     file = 'MATRICULA_'+region.upper()
     file_out_split='MATRICULA_'+region.upper()+'_REDUZIDO_'
     file_out_split_remove = 'MATRICULA_'+region.upper()+'_REDUZIDO_REMOVE_'
@@ -229,7 +230,6 @@ if __name__ == '__main__':
     print("Inicia Merge de Linhas")
     start = time.time()
     concatCSVbyRows(file_out_split_remove,file_out_merge,ano)
-    #concatCSVWithDask(findFile,file_out_merge)
     end = time.time()
     print("Finaliza Merge em : ", (end - start), "sec")
 

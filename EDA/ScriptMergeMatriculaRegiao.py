@@ -48,6 +48,6 @@ if __name__ == '__main__':
     ano = str(2019)
     start = time.time()
     #loadMatriculaWithDask('../Dataset/2017/matricula_reduzido_nordeste.csv',)
-    concatCSVWithDask('matricula_reduzido_','matricula_reduzido_all_'+ano)
+    concatCSVWithDask('matricula_reduzido_','matricula_reduzido_all_'+ano,ano)
     end = time.time()
     print("Total time:", (end - start), "sec")
