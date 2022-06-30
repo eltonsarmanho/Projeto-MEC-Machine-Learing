@@ -68,7 +68,7 @@ def merge(censo,dataset_escola_saeb,ano):
     print(df_result.shape)
     # Check duplicidade
     print("Check duplicidade: ", df_result['CO_ENTIDADE'].duplicated().any())
-    df_result.to_csv('../Dataset/2017/inep_sabe_merge_'+str(ano)+'.csv', sep='\t', encoding='utf-8', index=False)
+    df_result.to_csv('../Dataset/'+str(ano)+'/inep_sabe_merge_'+str(ano)+'.csv', sep='\t', encoding='utf-8', index=False)
 
 if __name__ == '__main__':
     start = time.time()

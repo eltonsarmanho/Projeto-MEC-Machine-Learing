@@ -29,13 +29,13 @@ def loadMatriculaWithDask(url, separate=None,):
     print(dataframe.shape)
     print(dataframe.columns)
 
-def concatCSVWithDask(filefind,file):
+def concatCSVWithDask(filefind,file,ano):
     # list of merged files returned
-    files = os.path.join("../Dataset/2017", filefind + '*.csv')
+    files = os.path.join("../Dataset/"+str(ano), filefind + '*.csv')
 
     all_files = glob.glob(files)
     print(all_files)
-    out_file = '../Dataset/2017/' + file + '.csv';
+    out_file = '../Dataset/'+str(ano)+'/' + file + '.csv';
     with open(out_file, 'w') as outfile:
         for i, filename in enumerate(all_files):
             print(i, filename)

@@ -20,7 +20,7 @@ import re
 
 # Comando para Quebrar CSV
 # split -b 800000000 MATRICULA_NORDESTE.CSV /home/eltonss/Documents/data/MATRICULA_SUDESTE.CSV
-def runDimensionReduction(url, nameNewFile=None):
+def runDimensionReduction(url, nameNewFile=None,ano=None):
     try:
         drop_columns = ['NU_ANO_CENSO', 'NU_ANO', 'NU_IDADE_REFERENCIA', 'NU_IDADE',
                         'TP_NACIONALIDADE', 'CO_PAIS_ORIGEM', 'CO_UF_NASC',
@@ -48,7 +48,7 @@ def runDimensionReduction(url, nameNewFile=None):
         dataframe = dd.read_csv(url, sep='\t',usecols=lambda x: x not in drop_columns,dtype='object')
         print("Dimensionality Reduzida {}.".format(dataframe.shape))
         #dataset_reduce = transformData(dataframe)
-        dataframe.to_csv('../Dataset/2017/'+nameNewFile+'.csv',sep='\t', encoding='utf-8', index_label='indice',index=False, single_file=True)
+        dataframe.to_csv('../Dataset/'+str(ano)+'/'+nameNewFile+'.csv',sep='\t', encoding='utf-8', index_label='indice',index=False, single_file=True)
         #return dataframe
     except:
         print("Oops!", sys.exc_info(), "occurred.");
@@ -70,10 +70,9 @@ def transformData(dataset_reduce):
     #    print(dataset_reduce[item].describe())
     return dataset_reduce
 
-def splitFileWithDask(file):
-    start = time.time()
+def splitFileWithDask(file,ano):
 
-    file_path = "../Dataset/2017/"+file+".CSV"
+    file_path = "../Dataset/"+str(ano)+"/"+file+".CSV"
     dataframe = dd.read_csv(file_path,sep='|',dtype={'CO_MUNICIPIO_END': 'float64',
        'CO_MUNICIPIO_NASC': 'float64',
        'CO_UF_END': 'float64',
@@ -94,9 +93,7 @@ def splitFileWithDask(file):
     # set how many file you would like to have
     # in this case 10
     dataframe = dataframe.repartition(npartitions=20)
-    dataframe.to_csv("../Dataset/2017/"+file+"_file_*.csv",sep='\t')
-    end = time.time()
-    print("Split csv: ", (end - start), "sec")
+    dataframe.to_csv("../Dataset/"+str(ano)+"/"+file+"_file_*.csv",sep='\t')
 
 def concatCSV():
     # setting the path for joining multiple files
@@ -120,12 +117,12 @@ def concatCSV():
     combined_csv.to_csv('../Dataset/2017/matricula_reduzido_all.csv',sep='\t', encoding='utf-8', index=False)
     print(combined_csv.shape)
 
-def concatCSVbyRows(filefind,file):
-    files = os.path.join("../Dataset/2017",filefind+'*.csv')
+def concatCSVbyRows(filefind,file,ano):
+    files = os.path.join("../Dataset/"+str(ano)+"",filefind+'*.csv')
 
     all_files = glob.glob(files)
     print(all_files)
-    out_file = '../Dataset/2017/'+file+'.csv';
+    out_file = '../Dataset/'+str(ano)+'/'+file+'.csv';
     with open(out_file, 'w') as outfile:
         for i, filename in enumerate(all_files):
             print(i, filename)
@@ -162,7 +159,7 @@ def loadMatriculaWithDask(url, separate=None, newFile=None):
 
     calculateMissingValues(dataframe)
 
-def removeColumnWithDask(url, separate=None, newFile=None):
+def removeColumnWithDask(url, separate=None, newFile=None,ano=None):
     if (separate != None):
         dataset = dd.read_csv(url, dtype='object', sep=separate)
     else:
@@ -170,7 +167,7 @@ def removeColumnWithDask(url, separate=None, newFile=None):
 
     if newFile != None:
         dataset_reduce = dataset.drop('Unnamed: 0', axis=1)
-        dataset_reduce.to_csv('../Dataset/2017/'+newFile+'.csv',single_file=True)
+        dataset_reduce.to_csv('../Dataset/'+str(ano)+'/'+newFile+'.csv',single_file=True)
 
     print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
 
@@ -185,27 +182,31 @@ def calculateMissingValues(nyc_data_raw):
 
 
 if __name__ == '__main__':
-    #Passo 1: Quebrar os arquivos
-    #Arquivos da base de dados
-    region = 'norte'
+    ano = 2019
+    region = 'co'
     file = 'MATRICULA_'+region.upper()
     file_out_split='MATRICULA_'+region.upper()+'_REDUZIDO_'
     file_out_split_remove = 'MATRICULA_'+region.upper()+'_REDUZIDO_REMOVE_'
     file_out_merge= 'matricula_reduzido_'+region
 
+    #Passo 1: Quebrar os arquivos
+    #Arquivos da base de dados
     print("Inicia Split File")
-    splitFileWithDask(file)
+    start = time.time()
+    splitFileWithDask(file,ano)
+    end = time.time()
+    print("Split csv: ", (end - start), "sec")
     print("Finaliza Split File")
 
     # Passo 2: Reduz numero de dimensões
     print("Inicia Redução de Dimensão")
     start = time.time()
-    files = os.path.join("../Dataset/2017", file+"_file_*.csv")
+    files = os.path.join("../Dataset/"+str(ano), file+"_file_*.csv")
     # list of merged files returned
     files = glob.glob(files)
     for f in files:
         n = re.findall(r'\d+', f)[1]
-        runDimensionReduction(f,file_out_split+str(n))
+        runDimensionReduction(f,file_out_split+str(n),ano)
 
     end = time.time()
     print("Finaliza redução em : ", (end - start), "sec")
@@ -213,18 +214,18 @@ if __name__ == '__main__':
     # Passo 3: remove index
     print("Inicia Remocao de indice")
     start = time.time()
-    files = os.path.join("../Dataset/2017", file_out_split+"*.csv")
+    files = os.path.join("../Dataset/"+str(ano), file_out_split+"*.csv")
     files = glob.glob(files)
     for f in files:
         n = re.findall(r'\d+', f)[1]
-        removeColumnWithDask(f,'\t',file_out_split_remove+str(n))
+        removeColumnWithDask(f,'\t',file_out_split_remove+str(n),ano)
     end = time.time()
     print("Finaliza remoção indice em : ", (end - start), "sec")
 
     #Passo 4: Realiza Merge dos arquivos - Se caso separou os arquivos
     print("Inicia Merge de Linhas")
     start = time.time()
-    concatCSVbyRows(file_out_split_remove,file_out_merge)
+    concatCSVbyRows(file_out_split_remove,file_out_merge,ano)
     #concatCSVWithDask(findFile,file_out_merge)
     end = time.time()
     print("Finaliza Merge em : ", (end - start), "sec")

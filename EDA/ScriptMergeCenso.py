@@ -16,11 +16,11 @@ import itertools
 import csv
 import os
 
-def loadData(indice):
+def loadData(indice,ano):
 
     start = time.time()
-    dataset_escola = pd.read_csv('../Dataset/2017/escola_update.csv', sep='\t',)
-    dataset_matricula  = pd.read_csv('../Dataset/2017/matricula_reduzido_all_2017_'+str(indice)+'.csv', low_memory=True, sep='\t')
+    dataset_escola = pd.read_csv('../Dataset/'+str(ano)+'/escola_update.csv', sep='\t',)
+    dataset_matricula  = pd.read_csv('../Dataset/'+str(ano)+'/matricula_reduzido_all_'+str(ano)+'_'+str(indice)+'.csv', low_memory=True, sep='\t')
 
     end = time.time()
     print("Read csv: ", (end - start), "sec")
@@ -43,7 +43,7 @@ def calculateMissingValues(nyc_data_raw):
     end = time.time()
     print("Read csv with Dask: ", (end - start), "sec")
 
-def calculateIndicators(dataset_escola, dataset_matricula,indice=None):
+def calculateIndicators(dataset_escola, dataset_matricula,ano,indice=None):
 
     columns = dataset_matricula.columns;
     filtered = filter(lambda name: name.find("IN_") != -1, columns);
@@ -72,10 +72,10 @@ def calculateIndicators(dataset_escola, dataset_matricula,indice=None):
     print("Check duplicidade: ", df_result['CO_ENTIDADE'].duplicated().any())
     print('Shape dataframe estatistica Escola ', df_result.shape)
 
-    df_result.to_csv('../Dataset/2017/dataset_escola_filtered_'+str(indice)+'.csv',sep='\t', encoding='utf-8',index=False)
+    df_result.to_csv('../Dataset/'+str(ano)+'/dataset_escola_filtered_'+str(indice)+'.csv',sep='\t', encoding='utf-8',index=False)
 
-def splitFileWithDask():
-    file_path = "../Dataset/2017/matricula_reduzido_all_2017.csv"
+def splitFileWithDask(ano):
+    file_path = "../Dataset/"+str(ano)+"/matricula_reduzido_all_"+str(ano)+".csv"
     df = dd.read_csv(file_path,
     dtype={'CO_ENTIDADE': 'float64',
        'CO_MESORREGIAO': 'float64',
@@ -96,7 +96,7 @@ def splitFileWithDask():
     # set how many file you would like to have
     # in this case 10
     df = df.repartition(npartitions=35)
-    df.to_csv("../Dataset/2017/matricula_reduzido_all_2017_*.csv",sep='\t', encoding='utf-8', index=False)
+    df.to_csv("../Dataset/"+str(ano)+"/matricula_reduzido_all_"+str(ano)+"_*.csv",sep='\t', encoding='utf-8', index=False)
 
 def concatCSV():
     # setting the path for joining multiple files
@@ -125,7 +125,7 @@ def concatCSV():
 if __name__ == '__main__':
     #1° Passo: Split File
     start = time.time()
-    #splitFileWithDask()
+    splitFileWithDask()
     end = time.time()
     print("Running process of split: ", (end - start), "sec")
 
