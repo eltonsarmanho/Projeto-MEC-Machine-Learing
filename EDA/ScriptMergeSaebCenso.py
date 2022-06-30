@@ -20,9 +20,6 @@ import os
 
 def runDimensionReduction(url):
     try:
-
-
-
         #dataframe = dd.read_csv(url, sep='|',  dtype='object')
         #dataset_reduce = pd.read_csv(url, sep='|', usecols=lambda x: x not in drop_columns )
         dataset = pd.read_csv(url, delimiter=',', encoding="utf-8", )
@@ -71,10 +68,11 @@ def merge(censo,dataset_escola_saeb,ano):
     df_result.to_csv('../Dataset/'+str(ano)+'/inep_sabe_merge_'+str(ano)+'.csv', sep='\t', encoding='utf-8', index=False)
 
 if __name__ == '__main__':
+    ano = str(2019)
     start = time.time()
-    url_csv = '../Dataset/2017/TS_ESCOLA.csv'
+    url_csv = '../Dataset/'+ano+'/TS_ESCOLA.csv'
     dataset_escola_saeb = runDimensionReduction(url_csv)
-    censo = '../Dataset/2017/dataset_escola_filtered.csv'
-    merge(censo,dataset_escola_saeb,2017)
+    censo = '../Dataset/'+ano+'/dataset_escola_filtered.csv'
+    merge(censo,dataset_escola_saeb,ano)
     end = time.time()
-    print("Running process: ", (end - start), "sec")
+    print("Total Time: ", (end - start), "sec")

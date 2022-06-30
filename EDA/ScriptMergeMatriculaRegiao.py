@@ -31,11 +31,11 @@ def loadMatriculaWithDask(url, separate=None,):
 
 def concatCSVWithDask(filefind,file,ano):
     # list of merged files returned
-    files = os.path.join("../Dataset/"+str(ano), filefind + '*.csv')
+    files = os.path.join("../Dataset/"+ano, filefind + '*.csv')
 
     all_files = glob.glob(files)
     print(all_files)
-    out_file = '../Dataset/'+str(ano)+'/' + file + '.csv';
+    out_file = '../Dataset/'+ano+'/' + file + '.csv';
     with open(out_file, 'w') as outfile:
         for i, filename in enumerate(all_files):
             print(i, filename)
@@ -45,5 +45,9 @@ def concatCSVWithDask(filefind,file,ano):
                         continue
                     outfile.write(line)
 if __name__ == '__main__':
+    ano = str(2019)
+    start = time.time()
     #loadMatriculaWithDask('../Dataset/2017/matricula_reduzido_nordeste.csv',)
-    concatCSVWithDask('matricula_reduzido_','matricula_reduzido_all_2017')
+    concatCSVWithDask('matricula_reduzido_','matricula_reduzido_all_'+ano)
+    end = time.time()
+    print("Total time:", (end - start), "sec")

@@ -86,7 +86,9 @@ def splitFileWithDask(file,ano):
        'NU_DUR_AEE_OUTRAS_REDES': 'float64',
        'NU_DUR_ATIV_COMP_MESMA_REDE': 'float64',
        'NU_DUR_ATIV_COMP_OUTRAS_REDES': 'float64',
-       'TP_ETAPA_ENSINO': 'float64',
+       'TP_ETAPA_ENSINO': 'float64','IN_TRANSPORTE_PUBLICO': 'float64',
+       'NU_DIAS_ATIVIDADE': 'float64',
+       'TP_TIPO_LOCAL_TURMA': 'float64','TP_ZONA_RESIDENCIAL': 'float64',
        'TP_UNIFICADA': 'float64'})
     print("Dimensionality total {}.".format(dataframe.shape))
 
@@ -183,11 +185,12 @@ def calculateMissingValues(nyc_data_raw):
 
 if __name__ == '__main__':
     ano = 2019
-    region = 'co'
+    region = 'sudeste'
     file = 'MATRICULA_'+region.upper()
     file_out_split='MATRICULA_'+region.upper()+'_REDUZIDO_'
     file_out_split_remove = 'MATRICULA_'+region.upper()+'_REDUZIDO_REMOVE_'
     file_out_merge= 'matricula_reduzido_'+region
+    start_global = time.time()
 
     #Passo 1: Quebrar os arquivos
     #Arquivos da base de dados
@@ -229,4 +232,7 @@ if __name__ == '__main__':
     #concatCSVWithDask(findFile,file_out_merge)
     end = time.time()
     print("Finaliza Merge em : ", (end - start), "sec")
+
+    end_global = time.time()
+    print("Total Time: ", (end_global - start_global), "sec")
 

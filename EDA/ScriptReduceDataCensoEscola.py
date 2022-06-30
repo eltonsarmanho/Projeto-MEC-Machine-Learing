@@ -18,7 +18,7 @@ import os
 
 
 
-def runDimensionReduction(url, nameNewFile=None):
+def runDimensionReduction(url, nameNewFile=None,ano=None):
     try:
         drop_columns = ['NU_ANO_CENSO',
                         'CO_ORGAO_REGIONAL', 'IN_VINCULO_OUTRO_ORGAO',
@@ -56,7 +56,6 @@ def runDimensionReduction(url, nameNewFile=None):
                         'TP_RESPONSAVEL_REGULAMENTACAO', 'TP_PROPOSTA_PEDAGOGICA',
                         'TP_AEE', 'TP_ATIVIDADE_COMPLEMENTAR'
                         ]
-        start = time.time()
         #dataframe = dd.read_csv(url, sep='|',  dtype='object')
         #dataset_reduce = pd.read_csv(url, sep='|', usecols=lambda x: x not in drop_columns )
         #Abrir arquivo setar utf-8
@@ -66,22 +65,13 @@ def runDimensionReduction(url, nameNewFile=None):
         #print("Dimensionality reduced from {} to {}.".format(dataframe.shape, dataset_reduce.shape))
         dataset_reduce.update(dataset_reduce[['NO_ENTIDADE']].applymap('"{}"'.format))
 
-        end = time.time()
-        print("Read csv: ", (end - start), "sec")
         print(dataset_reduce.head(5))
         print(dataset_reduce.shape)
         # dataset_reduce = transformData(dataframe)
-        dataset_reduce.to_csv('../Dataset/2017/' + nameNewFile,sep='\t', encoding='utf-8',index=False)
+        dataset_reduce.to_csv('../Dataset/'+ano+'/' + nameNewFile,sep='\t', encoding='utf-8',index=False)
 
     except:
         print("Oops!", sys.exc_info(), "occurred.");
-
-def showDataWithDask(url):
-    dataframe = dd.read_csv(url,  dtype='object')
-
-    print(dataframe.shape)
-    print(dataframe.columns)
-    calculateMissingValues(dataframe)
 
 def calculateMissingValues(nyc_data_raw):
     print("Detect missing values.")
@@ -93,7 +83,6 @@ def calculateMissingValues(nyc_data_raw):
     print("Read csv with Dask: ", (end - start), "sec")
 
 if __name__ == '__main__':
-    url_csv = '../Dataset/2017/ESCOLAS.CSV'
-    runDimensionReduction(url_csv,'escola_update.csv')
-
-    #showDataWithDask('../Dataset/escola_update.csv')
+    ano = str(2019)
+    url_csv = '../Dataset/'+ano+'/ESCOLAS.CSV'
+    runDimensionReduction(url_csv,'escola_update.csv',ano)
