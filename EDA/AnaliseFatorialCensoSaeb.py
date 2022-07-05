@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 def load():
     try:
-        dataset = pd.read_csv('../Dataset/2019/inep_sabe_merge_2019.csv', delimiter='\t')
+        dataset = pd.read_csv('../Dataset/2019/inep_saeb_merge_2019.csv', delimiter='\t')
         print(dataset.shape)
         print(dataset.columns)
 
@@ -19,60 +19,96 @@ def load():
     except:
         print("Oops!", sys.exc_info()[0], "occurred.")
 
-def preprocessamento(dataset):
+def preprocessamento(df):
     # Dropping unnecessary columns
-    reduced_df = dataset
-    #print(reduced_df.info())
-    #print(reduced_df.columns)
-    reduced_df.drop(reduced_df[reduced_df['QT_PROF_FONAUDIOLOGO'] >= 88888].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['QT_PROF_PSICOLOGO'] >= 88888].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['IN_ACESSO_INTERNET_COMPUTADOR'] >= 2].index, inplace=True)
+    #Pegar 10 valores mais frequentes
+    n = 10
+    data = df['QT_PROF_PSICOLOGO']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    df['QT_PROF_PSICOLOGO'] = np.where(a > data.mean(), max(mode), a).tolist()
 
-    reduced_df.drop(reduced_df[reduced_df['NECESSIDADE_ESPECIAL'] >= 60].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['BAIXA_VISAO'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['DEF_AUDITIVA'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['DEF_FISICA'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['DEF_INTELECTUAL'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['TRANSPORTE_PUBLICO'] >= 263].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['TRANSP_ONIBUS'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['REGULAR'] >= 400].index, inplace=True)
-    print(reduced_df.shape)
-    #data = reduced_df['REGULAR']
-    #histogram_boxplot(data, bins = 20, title="Plot", xlabel="Valores")
-    print("Detect missing values.")
-    print(reduced_df.isna().sum() / len(reduced_df))
-    #reduced_df_isna = reduced_df.dropna(subset=["MEDIA_EM_MT",'MEDIA_EM_LP','MEDIA_9EF_MT','MEDIA_9EF_LP'])
+    data = df['IN_ACESSO_INTERNET_COMPUTADOR']
+    a = np.array(data.values.tolist())
+    df['IN_ACESSO_INTERNET_COMPUTADOR'] = np.where(a >= data.mean(), data.mean(), a).tolist()
 
-    #print("length reduced from {} to {}.".format(reduced_df.shape[0], reduced_df_isna.shape[0]))
-    #print(reduced_df_isna.isna().sum() / len(reduced_df_isna))
+    data = df['NECESSIDADE_ESPECIAL']
+    a = np.array(data.values.tolist())
+    threshould = np.percentile(data, 75)
+    df['NECESSIDADE_ESPECIAL'] = np.where(a >= threshould, threshould, a).tolist()
 
-    return  reduced_df
+    data = df['BAIXA_VISAO']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['BAIXA_VISAO'] = np.where(a > threshould, threshould, a).tolist()
+
+    data = df['DEF_AUDITIVA']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['DEF_AUDITIVA'] = np.where(a > threshould, threshould, a).tolist()
+
+    data = df['DEF_FISICA']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['DEF_FISICA'] = np.where(a > threshould, threshould, a).tolist()
+    data = df['DEF_FISICA']
+
+    data = df['DEF_INTELECTUAL']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['DEF_INTELECTUAL'] = np.where(a > threshould, threshould, a).tolist()
+
+    data = df['TRANSPORTE_PUBLICO']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = data.median()
+    df['TRANSPORTE_PUBLICO'] = np.where(a > threshould, threshould, a).tolist()
+    data = df['TRANSPORTE_PUBLICO']
+
+
+    data = df['TRANSP_ONIBUS']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['TRANSP_ONIBUS'] = np.where(a > threshould, threshould, a).tolist()
+    data = df['TRANSP_ONIBUS']
+
+    columns_drop = ['IN_REGULAR','IN_SERIE_ANO','REGULAR', 'IN_FUNDAMENTAL_CICLOS','IN_COMUM_FUND_AI']
+    df.drop(columns_drop,axis=1,inplace=True)
+    #histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
+    #print("Detect missing values.")
+    #print(df.isna().sum() / len(df))
+
+    return  df
 
 def checkFeasibility(dataset):
-
     columns_numeric = pd.DataFrame(dataset._get_numeric_data()).columns
     columns_categorical = list(pd.DataFrame(dataset.select_dtypes(['object'])).columns)
-
     columns_categorical.append('CO_ENTIDADE')
 
     print("Categorical Columns")
     print(columns_categorical)
-    drop_columns = columns_numeric
     dataset_reduce = dataset.drop(columns=columns_categorical, axis=1)
+    dataset_reduce = dataset_reduce.astype(float)
 
     result = dataset_reduce.isna().mean()
-    dataset_reduce = dataset_reduce.loc[:, result < .1]
 
+    dataset_reduce = dataset_reduce.loc[:, result < .1]
+    #Remove colunas com valores iguais em todas as linhas
     nunique = dataset_reduce.nunique()
     cols_to_drop = nunique[nunique == 1].index
-    dataset_reduce = dataset_reduce.drop(cols_to_drop, axis=1)
+    dataset_reduce.drop(cols_to_drop, axis=1,inplace=True)
 
     columns = dataset_reduce.columns;
     filtered = filter(lambda name: name.find("CO_") != -1, columns);
     dataset_reduce.drop(filtered, axis=1, inplace=True)
 
     print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
-
+    print((dataset_reduce.values < 0).any())
     chi_square_value, p_value = calculate_bartlett_sphericity(dataset_reduce)
     print(chi_square_value, p_value);
 
@@ -96,6 +132,7 @@ def checkFeasibility(dataset):
     #plt.xlabel('Factors')
     #plt.ylabel('Eigenvalue')
     #plt.grid()
+    #plt.axhline(y=1, c='k')
     #plt.show()
 
     # 6 fatores
@@ -114,13 +151,17 @@ def checkFeasibility(dataset):
     # Substitue as linhas pelo nomes dos itens
     factorLoadings.index = dataset_reduce.columns
     #print(factorLoadings.describe())
-    #data_filtered = factorLoadings.copy()
-    #print(data_filtered)
+    data_filtered = factorLoadings.copy()
+
+    for c in data_filtered.columns:
+        data = data_filtered[abs(data_filtered[c])>0.6]
+        print("Fator {} formado por {}.".format(c,data[c].index.values.tolist()))
+
     plt.figure(figsize=(8, 6))
     sns.set(font_scale=.9)
     sns.heatmap(factorLoadings, linewidths=1, linecolor='#ffffff', cmap="YlGnBu", xticklabels=1, yticklabels=1)
     plt.show()
 if __name__ == '__main__':
-    dataframe = load()
-    dataset = preprocessamento(dataframe)
+    dataset = load()
+    dataset = preprocessamento(dataset)
     checkFeasibility(dataset)

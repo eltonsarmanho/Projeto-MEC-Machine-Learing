@@ -16,83 +16,79 @@ os.environ["QT_QPA_PLATFORM"] = "wayland"
 
 def loadData(url):
     try:
-        dataset_censo = pd.read_csv(url,delimiter=',' )
-        #print(dataset_censo.info())
-        # Limpeza de dados
-
-        #dataset_censo.dropna(inplace=True)
-
+        dataset_censo = pd.read_csv(url,delimiter='\t' )
+        print(dataset_censo.shape)
         return dataset_censo;
     except:
         print("Oops!", sys.exc_info()[0], "occurred.")
 
 
-def preprocessamento(dataset):
+
+def preprocessamento(df):
     # Dropping unnecessary columns
-    columns = ["ID_SAEB",'ID_UF',	'ID_MUNICIPIO',	'ID_AREA',	'ID_ESCOLA',
-'ID_DEPENDENCIA_ADM','ID_LOCALIZACAO','PC_FORMACAO_DOCENTE_INICIAL',
-'PC_FORMACAO_DOCENTE_FINAL','PC_FORMACAO_DOCENTE_MEDIO','NIVEL_SOCIO_ECONOMICO',
-'NU_MATRICULADOS_CENSO_5EF','NU_MATRICULADOS_CENSO_EM',
-               'MEDIA_EMT_MT',            'TAXA_PARTICIPACAO_EMT','MEDIA_EMT_LP','MEDIA_EMI_LP', 'MEDIA_EMI_MT',
-'NIVEL_0_LP5','NIVEL_1_LP5','NIVEL_2_LP5','NIVEL_3_LP5','NIVEL_4_LP5','NIVEL_5_LP5','NIVEL_6_LP5',
-'NIVEL_7_LP5','NIVEL_8_LP5','NIVEL_9_LP5','NIVEL_0_MT5','NIVEL_1_MT5','NIVEL_2_MT5','NIVEL_3_MT5','NIVEL_4_MT5',
-'NIVEL_5_MT5','NIVEL_6_MT5','NIVEL_7_MT5','NIVEL_8_MT5','NIVEL_9_MT5',
-'NIVEL_10_MT5','NU_MATRICULADOS_CENSO_9EF','NU_PRESENTES_9EF','NIVEL_0_LP9','NIVEL_1_LP9',
-'NIVEL_2_LP9','NIVEL_3_LP9','NIVEL_4_LP9','NIVEL_5_LP9','NIVEL_6_LP9',
-'NIVEL_7_LP9','NIVEL_8_LP9','NIVEL_0_MT9','NIVEL_1_MT9','NIVEL_2_MT9','NIVEL_3_MT9','NIVEL_4_MT9',
-'NIVEL_5_MT9','NIVEL_6_MT9','NIVEL_7_MT9','NIVEL_8_MT9','NIVEL_9_MT9',
-'NU_MATRICULADOS_CENSO_EMT','NIVEL_0_LPEMT','NIVEL_1_LPEMT',
-'NIVEL_2_LPEMT','NIVEL_3_LPEMT','NIVEL_4_LPEMT','NIVEL_5_LPEMT','NIVEL_6_LPEMT',
-'NIVEL_7_LPEMT','NIVEL_8_LPEMT','NIVEL_0_MTEMT','NIVEL_1_MTEMT','NIVEL_2_MTEMT','NIVEL_3_MTEMT','NIVEL_4_MTEMT',
-'NIVEL_5_MTEMT','NIVEL_6_MTEMT','NIVEL_7_MTEMT','NIVEL_8_MTEMT',
-'NIVEL_9_MTEMT','NIVEL_10_MTEMT','NU_MATRICULADOS_CENSO_EMI','NU_PRESENTES_EMI','TAXA_PARTICIPACAO_EMI',
-'NIVEL_0_LPEMI','NIVEL_1_LPEMI','NIVEL_2_LPEMI',
-'NIVEL_3_LPEMI','NIVEL_4_LPEMI','NIVEL_5_LPEMI','NIVEL_6_LPEMI','NIVEL_7_LPEMI','NIVEL_8_LPEMI',
-'NIVEL_0_MTEMI','NIVEL_1_MTEMI','NIVEL_2_MTEMI','NIVEL_3_MTEMI','NIVEL_4_MTEMI',
-'NIVEL_5_MTEMI','NIVEL_6_MTEMI','NIVEL_7_MTEMI','NIVEL_8_MTEMI','NIVEL_9_MTEMI','NIVEL_10_MTEMI',
-               'NIVEL_0_LPEM', 'NIVEL_1_LPEM', 'NIVEL_2_LPEM',
-               'NIVEL_3_LPEM', 'NIVEL_4_LPEM', 'NIVEL_5_LPEM', 'NIVEL_6_LPEM',
-               'NIVEL_7_LPEM', 'NIVEL_8_LPEM', 'NIVEL_0_MTEM', 'NIVEL_1_MTEM',
-               'NIVEL_2_MTEM', 'NIVEL_3_MTEM', 'NIVEL_4_MTEM', 'NIVEL_5_MTEM',
-               'NIVEL_6_MTEM', 'NIVEL_7_MTEM', 'NIVEL_8_MTEM', 'NIVEL_9_MTEM',
-               'NIVEL_10_MTEM','CO_MESORREGIAO', 'CO_MICRORREGIAO', 'CO_UF', 'CO_MUNICIPIO',
-               'NO_ENTIDADE','EDUCACAO_INDIGENA','PROFISSIONALIZANTE','EJA','ESPECIAL_EXCLUSIVA',
-               'TRANSP_BICICLETA','TRANSP_MICRO_ONIBUS',  'TRANSP_TR_ANIMAL',
-               'TRANSP_VANS_KOMBI', 'TRANSP_OUTRO_VEICULO', 'TRANSP_EMBAR_ATE5',
-               'TRANSP_EMBAR_5A15', 'TRANSP_EMBAR_15A35', 'TRANSP_EMBAR_35','IN_ESPECIAL_EXCLUSIVA',
-               'CEGUEIRA','SURDEZ','AUTISMO','RECURSO_LIBRAS','RECURSO_LABIAL','RECURSO_VIDEO_LIBRAS',
-               'RECURSO_BRAILLE','AEE_LIBRAS', 'TAXA_PARTICIPACAO_5EF', 'TAXA_PARTICIPACAO_9EF',
-               'TAXA_PARTICIPACAO_EM',
-               ]
+    #Pegar 10 valores mais frequentes
+    n = 10
+    data = df['QT_PROF_PSICOLOGO']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    df['QT_PROF_PSICOLOGO'] = np.where(a > data.mean(), max(mode), a).tolist()
 
-    reduced_df = dataset.drop(columns, axis=1)
-    #print(reduced_df.info())
-    #print(reduced_df.columns)
-    print("Dimensionality reduced from {} to {}.".format(dataset.shape[1], reduced_df.shape[1]))
-    reduced_df.drop(reduced_df[reduced_df['QT_PROF_FONAUDIOLOGO'] >= 88888].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['QT_PROF_PSICOLOGO'] >= 88888].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['IN_ACESSO_INTERNET_COMPUTADOR'] >= 2].index, inplace=True)
+    data = df['IN_ACESSO_INTERNET_COMPUTADOR']
+    a = np.array(data.values.tolist())
+    df['IN_ACESSO_INTERNET_COMPUTADOR'] = np.where(a >= data.mean(), data.mean(), a).tolist()
 
-    reduced_df.drop(reduced_df[reduced_df['NECESSIDADE_ESPECIAL'] >= 60].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['BAIXA_VISAO'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['DEF_AUDITIVA'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['DEF_FISICA'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['DEF_INTELECTUAL'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['TRANSPORTE_PUBLICO'] >= 263].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['TRANSP_ONIBUS'] >= 2].index, inplace=True)
-    reduced_df.drop(reduced_df[reduced_df['REGULAR'] >= 400].index, inplace=True)
-    print(reduced_df.shape)
-    #data = reduced_df['REGULAR']
-    #histogram_boxplot(data, bins = 20, title="Plot", xlabel="Valores")
-    print("Detect missing values.")
-    print(reduced_df.isna().sum() / len(reduced_df))
-    #reduced_df_isna = reduced_df.dropna(subset=["MEDIA_EM_MT",'MEDIA_EM_LP','MEDIA_9EF_MT','MEDIA_9EF_LP'])
+    data = df['NECESSIDADE_ESPECIAL']
+    a = np.array(data.values.tolist())
+    threshould = np.percentile(data, 75)
+    df['NECESSIDADE_ESPECIAL'] = np.where(a >= threshould, threshould, a).tolist()
 
-    #print("length reduced from {} to {}.".format(reduced_df.shape[0], reduced_df_isna.shape[0]))
-    #print(reduced_df_isna.isna().sum() / len(reduced_df_isna))
+    data = df['BAIXA_VISAO']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['BAIXA_VISAO'] = np.where(a > threshould, threshould, a).tolist()
 
-    return  reduced_df
+    data = df['DEF_AUDITIVA']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['DEF_AUDITIVA'] = np.where(a > threshould, threshould, a).tolist()
 
+    data = df['DEF_FISICA']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['DEF_FISICA'] = np.where(a > threshould, threshould, a).tolist()
+    data = df['DEF_FISICA']
+
+    data = df['DEF_INTELECTUAL']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['DEF_INTELECTUAL'] = np.where(a > threshould, threshould, a).tolist()
+
+    data = df['TRANSPORTE_PUBLICO']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = data.median()
+    df['TRANSPORTE_PUBLICO'] = np.where(a > threshould, threshould, a).tolist()
+    data = df['TRANSPORTE_PUBLICO']
+
+
+    data = df['TRANSP_ONIBUS']
+    mode = data.value_counts()[:n].index.tolist()
+    a = np.array(data.values.tolist())
+    threshould = max(mode)
+    df['TRANSP_ONIBUS'] = np.where(a > threshould, threshould, a).tolist()
+    data = df['TRANSP_ONIBUS']
+
+    columns_drop = ['IN_REGULAR','IN_SERIE_ANO','REGULAR', 'IN_FUNDAMENTAL_CICLOS','IN_COMUM_FUND_AI']
+    df.drop(columns_drop,axis=1,inplace=True)
+    #histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
+    #print("Detect missing values.")
+    #print(df.isna().sum() / len(df))
+
+    return  df
 
 def histogram_boxplot(data, xlabel = None, title = None, font_scale=2, figsize=(9,8), bins = None):
     """ Boxplot and histogram combined
@@ -114,45 +110,61 @@ def histogram_boxplot(data, xlabel = None, title = None, font_scale=2, figsize=(
     if title: ax_box2.set(title=title)
     plt.show()
 
-def runAnaliseFactorial(dataframe):
+def runAnaliseFactorial(dataset):
     print("runAnaliseFactorial")
-    print(dataframe.info())
-    print(dataframe.columns)
-    columns = ['ID_REGIAO', 'NU_PRESENTES_5EF', 'NU_PRESENTES_EMT', 'NU_PRESENTES_EM',
-       'MEDIA_5EF_LP', 'MEDIA_5EF_MT', 'MEDIA_9EF_LP', 'MEDIA_9EF_MT',
-       'MEDIA_EM_LP', 'MEDIA_EM_MT', 'QT_PROF_PSICOLOGO',
-       'QT_PROF_FONAUDIOLOGO']
-    dataframe_reduce = dataframe.drop(columns, axis=1)
-    print("Dimensionality reduced from {} to {}.".format(dataframe.shape[1], dataframe_reduce.shape[1]))
+    columns_numeric = pd.DataFrame(dataset._get_numeric_data()).columns
+    columns_categorical = list(pd.DataFrame(dataset.select_dtypes(['object'])).columns)
 
-    chi_square_value, p_value = calculate_bartlett_sphericity(dataframe_reduce)
+    columns_categorical.append('CO_ENTIDADE')
+
+    print("Categorical Columns")
+    print(columns_categorical)
+    drop_columns = columns_numeric
+    dataset_reduce = dataset.drop(columns=columns_categorical, axis=1)
+
+
+    result = dataset_reduce.isna().mean()
+    dataset_reduce = dataset_reduce.loc[:, result < .1]
+
+    nunique = dataset_reduce.nunique()
+    cols_to_drop = nunique[nunique == 1].index
+    dataset_reduce = dataset_reduce.drop(cols_to_drop, axis=1)
+
+    columns = dataset_reduce.columns;
+    filtered = filter(lambda name: name.find("CO_") != -1, columns);
+    dataset_reduce.drop(filtered,axis=1,inplace=True)
+
+    print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
+
+
+    chi_square_value, p_value = calculate_bartlett_sphericity(dataset_reduce)
     print(chi_square_value, p_value);
 
-    kmo_all, kmo_model = calculate_kmo(dataframe_reduce)
+    kmo_all, kmo_model = calculate_kmo(dataset_reduce)
     print('kmo: ',kmo_model)
 
     # Create factor analysis object and perform factor analysis
-    #fa = FactorAnalyzer(n_factors=14, rotation=None)
-    #fa.fit(dataframe_reduce)
+    fa = FactorAnalyzer(n_factors=30, rotation=None)
+    fa.fit(dataset_reduce)
     # Check Eigenvalues
-    #ev, v = fa.get_eigenvalues()
+    ev, v = fa.get_eigenvalues()
 
     # Create scree plot using matplotlib
-    #plt.scatter(range(1, dataframe_reduce.shape[1] + 1), ev)
-    #plt.plot(range(1, dataframe_reduce.shape[1] + 1), ev)
-    #plt.title('Scree Plot')
-    #plt.xlabel('Factors')
-    #plt.ylabel('Eigenvalue')
-    #plt.grid()
-    #plt.show()
+    plt.scatter(range(1, dataset_reduce.shape[1] + 1), ev)
+    plt.plot(range(1, dataset_reduce.shape[1] + 1), ev)
+    plt.title('Scree Plot')
+    plt.xlabel('Factors')
+    plt.ylabel('Eigenvalue')
+    plt.grid()
+    plt.show()
 
 
     # Create factor analysis object and perform factor analysis
 
     fa = FactorAnalyzer(n_factors=3,rotation="varimax")
-    fa.fit(dataframe_reduce)
+    fa.fit(dataset_reduce)
     #print(fa.loadings_)
-    fa_loading_df = pd.DataFrame(fa.loadings_,index= dataframe_reduce.columns, columns=['Factor 1', 'Factor 2', 'Factor 3'])
+    fa_loading_df = pd.DataFrame(fa.loadings_,index= dataset_reduce.columns, columns=['Factor 1', 'Factor 2', 'Factor 3'])
     #print(fa_loading_df)
 
     # Get variance of each factors
@@ -161,17 +173,17 @@ def runAnaliseFactorial(dataframe):
                                   columns=['Factor 1', 'Factor 2', 'Factor 3'])
     #print(fa_variance_df)
 
-    array = fa.transform(dataframe_reduce)
+    array = fa.transform(dataset_reduce)
 
     factor1 = np.around(array[:, 0], 2)
-    dataframe['Acesso Internet'] = factor1
+    dataset['Acesso Internet'] = factor1
 
     factor2 = np.around(array[:, 1], 2)
-    dataframe['Acessibilidade'] = factor2
+    dataset['Acessibilidade'] = factor2
 
     factor3 = np.around(array[:, 2], 2)
-    dataframe['Deficiencia Fisica'] = factor3
-    return dataframe;
+    dataset['Deficiencia Fisica'] = factor3
+    return dataset;
 
 def normalize(X):
     from_min = np.min(X);
@@ -181,6 +193,7 @@ def normalize(X):
     df = (X - np.min(X)) * (to_max - to_min) / (from_max - from_min) + to_min
 
     return  df;
+
 def mediaByRegiaoComFator(dataset):
     fig, ax = plt.subplots(figsize=(7, 7))
     axins1 = inset_axes(ax, width='10%', height='2%', loc='lower right')
@@ -238,7 +251,7 @@ def mediaByRegiaoAnual(dataset_1,dataset_2):
     UFs, mean_regiao_ME, size_presentes, color = resumeDataframe(dataset_2,fator)
     plt.scatter(x=UFs,
                 y=mean_regiao_ME, s=size_presentes * 10, c=color,marker=',', edgecolors="black",
-                alpha=0.5,label='2020')
+                alpha=0.5,label='2017')
     plt.legend( markerscale=0.5, scatterpoints=1, fontsize=10)
     plt.title('Média em Pt no EM com Fator '+fator)
     plt.ylabel('Média')
@@ -248,15 +261,19 @@ def mediaByRegiaoAnual(dataset_1,dataset_2):
 
     
 if __name__ == '__main__':
-    url_2019 = '../Dataset/inep_sabe_merge_2019.csv'
-    url_2020 = '../Dataset/inep_sabe_merge_2020.csv'
+    url_2019 = '../Dataset/2019/inep_saeb_merge_2019.csv'
+    url_2017 = '../Dataset/2017/inep_saeb_merge_2017.csv'
     data_1 = loadData(url_2019);
-    data_2 = loadData(url_2020);
-    dataframe_1 = preprocessamento(data_1)
-    dataframe_2 = preprocessamento(data_2)
+    data_2 = loadData(url_2017);
 
-    dataframe_1 = runAnaliseFactorial(dataframe_1)
-    dataframe_2 = runAnaliseFactorial(dataframe_2)
+    columns = data_2.columns.difference(data_2.columns)
+    print(columns)
+
+    dataframe_1 = preprocessamento(data_1)
+    #dataframe_2 = preprocessamento(data_2)
+
+    dataframe_1 = runAnaliseFactorial(data_2)
+    #dataframe_2 = runAnaliseFactorial(dataframe_2)
 
     #mediaByRegiao(dataframe)
-    mediaByRegiaoAnual(dataframe_1,dataframe_2)
+    #mediaByRegiaoAnual(dataframe_1,dataframe_2)
