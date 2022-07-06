@@ -19,71 +19,55 @@ def load():
     except:
         print("Oops!", sys.exc_info()[0], "occurred.")
 
+def reduceNoise(data,threshould,indicator):
+    a = np.array(data.values.tolist())
+    return np.where(a >= threshould, indicator, a).tolist()
+
 def preprocessamento(df):
     # Dropping unnecessary columns
-    #Pegar 10 valores mais frequentes
+    # Pegar 10 valores mais frequentes
     n = 10
     data = df['QT_PROF_PSICOLOGO']
     mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    df['QT_PROF_PSICOLOGO'] = np.where(a > data.mean(), max(mode), a).tolist()
+    df['QT_PROF_PSICOLOGO'] = reduceNoise(data, data.mean(), max(mode))
 
-    data = df['IN_ACESSO_INTERNET_COMPUTADOR']
-    a = np.array(data.values.tolist())
-    df['IN_ACESSO_INTERNET_COMPUTADOR'] = np.where(a >= data.mean(), data.mean(), a).tolist()
-
-    data = df['NECESSIDADE_ESPECIAL']
-    a = np.array(data.values.tolist())
-    threshould = np.percentile(data, 75)
-    df['NECESSIDADE_ESPECIAL'] = np.where(a >= threshould, threshould, a).tolist()
-
-    data = df['BAIXA_VISAO']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['BAIXA_VISAO'] = np.where(a > threshould, threshould, a).tolist()
-
-    data = df['DEF_AUDITIVA']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['DEF_AUDITIVA'] = np.where(a > threshould, threshould, a).tolist()
-
-    data = df['DEF_FISICA']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['DEF_FISICA'] = np.where(a > threshould, threshould, a).tolist()
-    data = df['DEF_FISICA']
-
-    data = df['DEF_INTELECTUAL']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['DEF_INTELECTUAL'] = np.where(a > threshould, threshould, a).tolist()
-
-    data = df['TRANSPORTE_PUBLICO']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = data.median()
-    df['TRANSPORTE_PUBLICO'] = np.where(a > threshould, threshould, a).tolist()
-    data = df['TRANSPORTE_PUBLICO']
+    df['IN_ACESSO_INTERNET_COMPUTADOR'] = reduceNoise(df['IN_ACESSO_INTERNET_COMPUTADOR'], data.mean(), data.mean())
 
 
-    data = df['TRANSP_ONIBUS']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['TRANSP_ONIBUS'] = np.where(a > threshould, threshould, a).tolist()
-    data = df['TRANSP_ONIBUS']
+    for parametro in ['NECESSIDADE_ESPECIAL','IN_BIBLIOTECA']:
+        data = df[parametro]
+        threshould = getValue_upper_whisker_quarile(data)[0]
+        indicator = getValue_upper_whisker_quarile(data)[1]
+        df[parametro] = reduceNoise(data,threshould,indicator)
 
-    columns_drop = ['IN_REGULAR','IN_SERIE_ANO','REGULAR', 'IN_FUNDAMENTAL_CICLOS','IN_COMUM_FUND_AI']
-    df.drop(columns_drop,axis=1,inplace=True)
-    #histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
-    #print("Detect missing values.")
-    #print(df.isna().sum() / len(df))
+    for parametro in ['BAIXA_VISAO', 'DEF_AUDITIVA', 'DEF_FISICA', 'DEF_INTELECTUAL', 'TRANSPORTE_PUBLICO',
+                      'TRANSP_ONIBUS']:
+        data = df[parametro]
+        mode = data.value_counts()[:n].index.tolist()
+        threshould = max(mode)
+        df[parametro] = reduceNoise(data, threshould, threshould)
 
-    return  df
+    columns_drop = ['IN_REGULAR', 'IN_SERIE_ANO', 'REGULAR', 'IN_FUNDAMENTAL_CICLOS',
+                    'IN_BANHEIRO_FUNCIONARIOS', 'IN_COMUM_FUND_AI', 'IN_DORMITORIO_ALUNO',
+                    'IN_COMUM_PRE', 'IN_REDES_SOCIAIS', 'IN_PERIODOS_SEMESTRAIS', 'IN_PROFISSIONALIZANTE', 'IN_EJA',
+                    'IN_QUADRA_ESPORTES_COBERTA','IN_MEDIACAO_PRESENCIAL',
+                    'PROFISSIONALIZANTE', 'IN_RESERVA_PPI', 'IN_RESERVA_PUBLICA', 'IN_COMUM_MEDIO_INTEGRADO',
+                    'IN_ESGOTO_FOSSA_COMUM']
+
+    df.drop(columns_drop, axis=1, inplace=True)
+    return df
+
+
+def getValue_upper_whisker_quarile(data):
+    median = np.median(data)
+    upper_quartile = np.percentile(data, 75)
+    lower_quartile = np.percentile(data, 25)
+
+    iqr = upper_quartile - lower_quartile
+    upper_whisker = data[data <= upper_quartile + 1.5 * iqr].max()
+    lower_whisker = data[data >= lower_quartile - 1.5 * iqr].min()
+    print(upper_whisker)
+    return upper_whisker,upper_quartile
 
 def checkFeasibility(dataset):
     columns_numeric = pd.DataFrame(dataset._get_numeric_data()).columns
@@ -136,7 +120,7 @@ def checkFeasibility(dataset):
     #plt.show()
 
     # 6 fatores
-    fa = FactorAnalyzer(30, rotation="varimax")
+    fa = FactorAnalyzer(17, rotation="varimax")
 
     # o objeto tem o método fit para análise do dataframe
     fa.fit(dataset_reduce)

@@ -23,6 +23,19 @@ def loadData(url):
         print("Oops!", sys.exc_info()[0], "occurred.")
 
 
+def reduceNoise(data,threshould,indicator):
+    a = np.array(data.values.tolist())
+    return np.where(a >= threshould, indicator, a).tolist()
+
+def getValue_upper_whisker_quarile(data):
+    median = np.median(data)
+    upper_quartile = np.percentile(data, 75)
+    lower_quartile = np.percentile(data, 25)
+
+    iqr = upper_quartile - lower_quartile
+    upper_whisker = data[data <= upper_quartile + 1.5 * iqr].max()
+    lower_whisker = data[data >= lower_quartile - 1.5 * iqr].min()
+    return upper_whisker,upper_quartile
 
 def preprocessamento(df):
     # Dropping unnecessary columns
@@ -30,61 +43,34 @@ def preprocessamento(df):
     n = 10
     data = df['QT_PROF_PSICOLOGO']
     mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    df['QT_PROF_PSICOLOGO'] = np.where(a > data.mean(), max(mode), a).tolist()
+    df['QT_PROF_PSICOLOGO'] = reduceNoise(data,data.mean(),max(mode))
 
-    data = df['IN_ACESSO_INTERNET_COMPUTADOR']
-    a = np.array(data.values.tolist())
-    df['IN_ACESSO_INTERNET_COMPUTADOR'] = np.where(a >= data.mean(), data.mean(), a).tolist()
+    df['IN_ACESSO_INTERNET_COMPUTADOR'] = reduceNoise(df['IN_ACESSO_INTERNET_COMPUTADOR'],data.mean(),data.mean())
 
-    data = df['NECESSIDADE_ESPECIAL']
-    a = np.array(data.values.tolist())
-    threshould = np.percentile(data, 75)
-    df['NECESSIDADE_ESPECIAL'] = np.where(a >= threshould, threshould, a).tolist()
+    for parametro in ['NECESSIDADE_ESPECIAL','IN_BIBLIOTECA']:
+        data = df[parametro]
+        threshould = getValue_upper_whisker_quarile(data)[0]
+        indicator = getValue_upper_whisker_quarile(data)[1]
+        df[parametro] = reduceNoise(data,threshould,indicator)
 
-    data = df['BAIXA_VISAO']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['BAIXA_VISAO'] = np.where(a > threshould, threshould, a).tolist()
+    for parametro in ['BAIXA_VISAO','DEF_AUDITIVA','DEF_FISICA','DEF_INTELECTUAL','TRANSPORTE_PUBLICO','TRANSP_ONIBUS']:
+        data = df[parametro]
+        mode = data.value_counts()[:n].index.tolist()
+        threshould = max(mode)
+        df[parametro] = reduceNoise(data,threshould,threshould)
 
-    data = df['DEF_AUDITIVA']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['DEF_AUDITIVA'] = np.where(a > threshould, threshould, a).tolist()
-
-    data = df['DEF_FISICA']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['DEF_FISICA'] = np.where(a > threshould, threshould, a).tolist()
-    data = df['DEF_FISICA']
-
-    data = df['DEF_INTELECTUAL']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['DEF_INTELECTUAL'] = np.where(a > threshould, threshould, a).tolist()
-
-    data = df['TRANSPORTE_PUBLICO']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = data.median()
-    df['TRANSPORTE_PUBLICO'] = np.where(a > threshould, threshould, a).tolist()
-    data = df['TRANSPORTE_PUBLICO']
+    columns_drop = ['IN_REGULAR', 'IN_SERIE_ANO', 'REGULAR', 'IN_FUNDAMENTAL_CICLOS',
+                    'IN_BANHEIRO_FUNCIONARIOS', 'IN_COMUM_FUND_AI', 'IN_DORMITORIO_ALUNO',
+                    'IN_COMUM_PRE', 'IN_REDES_SOCIAIS', 'IN_PERIODOS_SEMESTRAIS', 'IN_PROFISSIONALIZANTE', 'IN_EJA',
+                    'IN_QUADRA_ESPORTES_COBERTA','IN_MEDIACAO_PRESENCIAL',
+                    'PROFISSIONALIZANTE', 'IN_RESERVA_PPI', 'IN_RESERVA_PUBLICA', 'IN_COMUM_MEDIO_INTEGRADO',
+                    'IN_ESGOTO_FOSSA_COMUM']
 
 
-    data = df['TRANSP_ONIBUS']
-    mode = data.value_counts()[:n].index.tolist()
-    a = np.array(data.values.tolist())
-    threshould = max(mode)
-    df['TRANSP_ONIBUS'] = np.where(a > threshould, threshould, a).tolist()
-    data = df['TRANSP_ONIBUS']
-
-    columns_drop = ['IN_REGULAR','IN_SERIE_ANO','REGULAR', 'IN_FUNDAMENTAL_CICLOS','IN_COMUM_FUND_AI']
     df.drop(columns_drop,axis=1,inplace=True)
-    #histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
+    data =  df['IN_BIBLIOTECA']
+    print(data.describe())
+    histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
     #print("Detect missing values.")
     #print(df.isna().sum() / len(df))
 
@@ -264,15 +250,15 @@ if __name__ == '__main__':
     url_2019 = '../Dataset/2019/inep_saeb_merge_2019.csv'
     url_2017 = '../Dataset/2017/inep_saeb_merge_2017.csv'
     data_1 = loadData(url_2019);
-    data_2 = loadData(url_2017);
+    #data_2 = loadData(url_2017);
 
-    columns = data_2.columns.difference(data_2.columns)
-    print(columns)
+    #columns = data_2.columns.difference(data_2.columns)
+    #print(columns)
 
     dataframe_1 = preprocessamento(data_1)
     #dataframe_2 = preprocessamento(data_2)
 
-    dataframe_1 = runAnaliseFactorial(data_2)
+    #dataframe_1 = runAnaliseFactorial(data_2)
     #dataframe_2 = runAnaliseFactorial(dataframe_2)
 
     #mediaByRegiao(dataframe)
