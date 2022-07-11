@@ -10,9 +10,10 @@ def dictfetchall(cursor):
     ]
 
 def get_respostas():
-    questionario_aluno = []
-    questionario_escola = []
-    with connections['datasource'].cursor as cursor:
+    questionario_aluno = {}
+    questionario_escola = {}
+    questinario_socio = {}
+    with connections['datasource'].cursor() as cursor:
         sql = 'select * from questionario_aluno'
         cursor.execute(sql)
         for result in dictfetchall(cursor):
@@ -25,6 +26,13 @@ def get_respostas():
         for result in dictfetchall(cursor):
             for k,v in result.items():
                 if k.startswith('questao'):
-                    questionario_aluno[k] = v
+                    questionario_escola[k] = v
 
-    return questionario_aluno, questionario_escola
+        sql3 = 'select * from questionario_socio_demografico'
+        cursor.execute(sql3)
+        for result in dictfetchall(cursor):
+            for k,v in result.items():
+                if k.startswith('questao'):
+                    questinario_socio[k] = v
+
+    return questionario_aluno, questionario_escola, questinario_socio
