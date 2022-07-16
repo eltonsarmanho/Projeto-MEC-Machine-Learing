@@ -132,6 +132,9 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     print("Print Dimensões")
     print(dimensoes_Est)
 
+    #Escreve CSV
+    #fatores_Est.to_csv('')
+
     EESCC = pd.DataFrame({'Risco': dimensoes_Est.groupby('E-ESCC')['IDALUNO'].count()}).reset_index()
     # EPROF['E-PROFC'] = 'Risco'
     EESCC = EESCC.rename(columns={"Risco": "Total", 'E-ESCC': 'Risco'})
