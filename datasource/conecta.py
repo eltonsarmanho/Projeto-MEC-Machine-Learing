@@ -12,19 +12,21 @@ def dictfetchall(cursor):
 def get_respostas():
     questionario_aluno = []
     questionario_escola = []
-    with connections['datasource'].cursor as cursor:
+    questinario_socio = []
+    with connections['datasource'].cursor() as cursor:
         sql = 'select * from questionario_aluno'
         cursor.execute(sql)
         for result in dictfetchall(cursor):
-            for k,v in result.items():
-                if k.startswith('questao'):
-                    questionario_aluno[k] = v
+            questionario_aluno.append(result)
 
         sql2 = 'select * from questionario_escola'
         cursor.execute(sql2)
         for result in dictfetchall(cursor):
-            for k,v in result.items():
-                if k.startswith('questao'):
-                    questionario_aluno[k] = v
+            questionario_escola.append(result)
 
-    return questionario_aluno, questionario_escola
+        sql3 = 'select * from questionario_socio_demografico'
+        cursor.execute(sql3)
+        for result in dictfetchall(cursor):
+            questinario_socio.append(result)
+
+    return questionario_aluno, questionario_escola, questinario_socio

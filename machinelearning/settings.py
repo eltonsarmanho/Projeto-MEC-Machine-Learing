@@ -26,7 +26,10 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-w2)@8uzek8qz=)k^4^vcg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1'
+]
 
 
 # Application definition
@@ -38,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'datasource',
+    'prediction',
 ]
 
 MIDDLEWARE = [
@@ -82,11 +87,11 @@ DATABASES = {
     },
     'datasource': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'databaseName',
-        'USER': 'databaseUser',
-        'PASSWORD': 'databasePassword',
-        'HOST': 'localhost',
-        'PORT': 'portNumber',
+        'NAME': config('NAME'),
+        'USER': config('USER'),
+        'PASSWORD': config('PASSWORD'),
+        'HOST': config('HOST'),
+        'PORT': config('PORT'),
     }
 }
 
@@ -128,6 +133,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

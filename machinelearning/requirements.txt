@@ -1,6 +1,9 @@
 asgiref==3.5.2
 Django==3.2.13
+djangorestframework==3.13.1
+mysqlclient==2.1.0
 python-decouple==3.6
 pytz==2022.1
 sqlparse==0.4.2
 typing_extensions==4.2.0
+mysqlclient==2.1.0
