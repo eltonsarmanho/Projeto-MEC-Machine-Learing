@@ -2,9 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
 sns.set(color_codes=True)
+
 def loadData():
     df = pd.read_csv('Data/Coleta_Piloto_Colunas.csv')
     # dataframe para os indices fatores medio baixo e medio alto
@@ -53,16 +52,18 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
         eprof1 = row[["QA17", "QA7", 'QA12']].mean()
         eprof2 = row[["QA22", "QA27", 'QA31']].mean()
 
-        efam1 = row[["QA23", "QE12", 'QE3']].mean()
-        efam2 = row[["QA13", "QA5", 'QA18']].mean()
+        efam1 = row[["QA23", "QE12", 'QE3']].mean()#QA23,QE12,QE03
+        efam2 = row[["QA13", "QA5", 'QA18']].mean()#QA13,QA05,QA18
 
-        ecom1 = row[["QE9", "QE16", 'QE4']].mean()
-        ecom2 = row[["QA4", "QA19", 'QA24']].mean()
-        ecom3 = row[["QA18", 'QA11', 'QE15']].mean()
+        ecom1 = row[["QE9", "QE16", 'QE4']].mean()#QE09,QE16,QE04
+        ecom2 = row[["QA4", "QA19", 'QA24']].mean()#QA04,QA19,QA24
+        ecom3 = row[["QA18", 'QA11', 'QE15']].mean()#QA18,QA11,QE15
 
-        eest1 = row[["QA32", "QA9", 'QA25']].mean()
-        eest2 = row[["QA10", "QA25", 'QA15']].mean()
-        eest3 = row[["QE10", "QE12", 'QE4']].mean()
+        eest1 = row[["QA32", "QA9", 'QA25']].mean()#QA32, QA09, QA25
+        eest2 = row[["QA10", "QA25", 'QA15']].mean()#QA10, QA25, QA15
+        eest3 = row[["QE10", "QE12", 'QE4']].mean()#QE10, QE18, QE11
+
+
 
         fatores_Est.loc[index, 'E-ESC1V'] = eesc1
         fatores_Est.loc[index, 'E-ESC2V'] = eesc2
@@ -88,23 +89,12 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
             colC = col + 'C'
             colV = col + 'V'
             # print(colC)
-            for i, r in fatores_Est.iterrows():
-                v = r[colV]
-                if (v >= medB and v <= medA):
-                    # print('Risco Médio')
-                    # print("Fator: ", col, ", Média Baixa: ", medB, ', Media Alta: ', medA, ', Valor: ', v)
-                    sit = 'Risco Médio'
-                elif (v < medB):
-                    # print('Risco Baixo')
-                    # print("Fator: ", col, ", Média Baixa: ", medB, ', Media Alta: ', medA, ', Valor: ', v)
-                    sit = 'Risco Baixo'
-                elif (v > medA):
-                    # print('Risco Alto')
-                    # print("Fator: ", col, ", Média Baixa: ", medB, ', Media Alta: ', medA, ', Valor: ', v)
-                    sit = 'Risco Alto'
-                fatores_Est.loc[i, colC] = sit
 
+            fatores_Est.loc[(fatores_Est[colV] >= medB) & (fatores_Est[colV] <= medA), colC] = 'Risco Médio'
+            fatores_Est.loc[fatores_Est[colV] < medB, colC] = 'Risco Baixo'
+            fatores_Est.loc[fatores_Est[colV] > medA, colC] = 'Risco Alto'
 
+    print("Print Fatores")
     print(fatores_Est)
 
     # for pra computar indices e valores
@@ -136,22 +126,10 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
         colC = col + 'C'
         colV = col + 'V'
         # print(colC)
-        for i, r in dimensoes_Est.iterrows():
-            v = r[colV]
-            if (v >= medB and v <= medA):
-                # print('Risco Médio')
-                # print("Fator: ", col, ", Média Baixa: ", medB, ', Media Alta: ', medA, ', Valor: ', v)
-                sit = 'Risco Médio'
-            elif (v < medB):
-                # print('Risco Baixo')
-                # print("Fator: ", col, ", Média Baixa: ", medB, ', Media Alta: ', medA, ', Valor: ', v)
-                sit = 'Risco Baixo'
-            elif (v > medA):
-                # print('Risco Alto')
-                # print("Fator: ", col, ", Média Baixa: ", medB, ', Media Alta: ', medA, ', Valor: ', v)
-                sit = 'Risco Alto'
-            dimensoes_Est.loc[i, colC] = sit
-
+        dimensoes_Est.loc[(dimensoes_Est[colV] >= medB) & (dimensoes_Est[colV] <= medA), colC] = 'Risco Médio'
+        dimensoes_Est.loc[dimensoes_Est[colV] < medB, colC] = 'Risco Baixo'
+        dimensoes_Est.loc[dimensoes_Est[colV] > medA, colC] = 'Risco Alto'
+    print("Print Dimensões")
     print(dimensoes_Est)
 
     EESCC = pd.DataFrame({'Risco': dimensoes_Est.groupby('E-ESCC')['IDALUNO'].count()}).reset_index()
@@ -174,27 +152,33 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     # EPROF['E-PROFC'] = 'Risco'
     EPROF = EPROF.rename(columns={"Risco": "Total", 'E-PROFC': 'Risco'})
 
-    plt.figure(figsize=(10, 15))
-    # set_style("whitegrid")
-    # fig, axs = plt.subplots(ncols=2)
-    # plt.style.use('seaborn-paper')
-    f, axes = plt.subplots(3, 2, figsize=(10, 15))
-    sns.barplot(x="Risco", y="Total", data=EPROF, ci=68, ax=axes[0, 0])
-    sns.barplot(x="Risco", y="Total", data=EESTC, ci=68, ax=axes[0, 1])
-    sns.barplot(x="Risco", y="Total", data=EESCC, ci=68, ax=axes[1, 0])
-    sns.barplot(x="Risco", y="Total", data=EFAMC, ci=68, ax=axes[1, 1])
-    sns.barplot(x="Risco", y="Total", data=ECOMC, ci=68, ax=axes[2, 0])
+    return EPROF,EESTC,EESCC,EFAMC,ECOMC
+def piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC):
 
-    axes[0, 0].title.set_text('E-EPROF')
-    axes[0, 1].title.set_text('E-EST')
-    axes[1, 0].title.set_text('E-ESC')
-    axes[1, 1].title.set_text('E-FAM')
-    axes[2, 0].title.set_text('E-COM')
+    #title = "Habilidade e receptividade do Professor "
+    dimensao = ['E-EPROF','E-EST','E-ESC','E-FAM','E-COM']
+    title = "Risco por dimenstões"
 
-    # sns.boxplot(x='education',y='wage', data=df_melt, ax=axs[2])
-    plt.suptitle('Risco por dimenstões')
+    fig, axes = plt.subplots(ncols=2,nrows=3, figsize=(4, 2), dpi=100)
 
+    plt.suptitle(title)
+    axe = axes.ravel()
+
+    ax1 = plt.subplot2grid(shape=(2, 6), loc=(0, 0), colspan=2)
+    ax2 = plt.subplot2grid((2, 6), (0, 2), colspan=2)
+    ax3 = plt.subplot2grid((2, 6), (0, 4), colspan=2)
+    ax4 = plt.subplot2grid((2, 6), (1, 1), colspan=2)
+    ax5 = plt.subplot2grid((2, 6), (1, 3), colspan=2)
+    axes = [ax1,ax2,ax3,ax4,ax5]
+    for ax,titulo,feature in zip(axes,dimensao,[EPROF,EESTC,EESCC,EFAMC,ECOMC]):
+
+        ax.pie(feature['Total'], labels=feature['Risco'], startangle=90, autopct='%1.0f%%', textprops={'fontsize': 14})
+        ax.set_title(titulo + ' em % ',fontsize=10, bbox={'facecolor': '0.8', 'pad': 5})
+
+
+    plt.show()
 
 if __name__ == '__main__':
     df,fatores_Est,fatores,dimensoes_Est,dimensoes = loadData()
-    processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes)
+    EPROF,EESTC,EESCC,EFAMC,ECOMC = processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes)
+    piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC)
