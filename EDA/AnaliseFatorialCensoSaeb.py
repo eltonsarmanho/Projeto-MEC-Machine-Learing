@@ -52,7 +52,10 @@ def preprocessamento(df):
                     'IN_COMUM_PRE', 'IN_REDES_SOCIAIS', 'IN_PERIODOS_SEMESTRAIS', 'IN_PROFISSIONALIZANTE', 'IN_EJA',
                     'IN_QUADRA_ESPORTES_COBERTA','IN_MEDIACAO_PRESENCIAL',
                     'PROFISSIONALIZANTE', 'IN_RESERVA_PPI', 'IN_RESERVA_PUBLICA', 'IN_COMUM_MEDIO_INTEGRADO',
-                    'IN_ESGOTO_FOSSA_COMUM']
+                    'IN_ESGOTO_FOSSA_COMUM','IN_COZINHA', 'IN_DESPENSA','IN_ALMOXARIFADO','IN_BIBLIOTECA',
+                    'IN_PATIO_COBERTO','IN_SALA_PROFESSOR','IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
+                    'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
+                    'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM', 'IN_TRATAMENTO_LIXO_INEXISTENTE']
 
     df.drop(columns_drop, axis=1, inplace=True)
     return df
@@ -66,7 +69,7 @@ def getValue_upper_whisker_quarile(data):
     iqr = upper_quartile - lower_quartile
     upper_whisker = data[data <= upper_quartile + 1.5 * iqr].max()
     lower_whisker = data[data >= lower_quartile - 1.5 * iqr].min()
-    print(upper_whisker)
+
     return upper_whisker,upper_quartile
 
 def checkFeasibility(dataset):
@@ -120,7 +123,7 @@ def checkFeasibility(dataset):
     #plt.show()
 
     # 6 fatores
-    fa = FactorAnalyzer(17, rotation="varimax")
+    fa = FactorAnalyzer(14, rotation="varimax")
 
     # o objeto tem o método fit para análise do dataframe
     fa.fit(dataset_reduce)
@@ -141,6 +144,8 @@ def checkFeasibility(dataset):
         data = data_filtered[abs(data_filtered[c])>0.6]
         print("Fator {} formado por {}.".format(c,data[c].index.values.tolist()))
 
+    #Selecionar as linhas acima de 0.6 e abaixo -0.6
+    factorLoadings = factorLoadings[factorLoadings.gt(.6).any(axis=1) | factorLoadings.lt(-.6).any(axis=1)]
     plt.figure(figsize=(8, 6))
     sns.set(font_scale=.9)
     sns.heatmap(factorLoadings, linewidths=1, linecolor='#ffffff', cmap="YlGnBu", xticklabels=1, yticklabels=1)
