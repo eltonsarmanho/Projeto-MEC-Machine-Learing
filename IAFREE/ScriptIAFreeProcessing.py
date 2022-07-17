@@ -12,7 +12,6 @@ def loadData():
          'Medio_Baixo': [3.66, 2.01, 2.34, 2.34, 3.01, 3.34, 2.01, 2.01, 2.01, 2.01, 2.34, 2.01],
          'Medio_Alto': [5.33, 3.33, 4.33, 4.00, 5.00, 5.00, 3.66, 3.66, 3.66, 4.00, 4.00, 3.33]}
     fatores = pd.DataFrame(data=d)
-    print(df.columns)
 
     # dataframe para os indices dimensoes medio baixo e medio alto
     d = {'Dimensao': ['E-ESC', 'E-PROF', 'E-FAM', 'E-COM', 'E-EST'],
@@ -43,6 +42,7 @@ def loadData():
                                          ignore_index=True)
 
     return df,fatores_Est,fatores,dimensoes_Est,dimensoes;
+
 def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     # for pra computar indices e valores
     for index, row in df.iterrows():
@@ -82,17 +82,16 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
         fatores_Est.loc[index, 'E-EST2V'] = eest2
         fatores_Est.loc[index, 'E-EST3V'] = eest3
 
-        for index, row in fatores.iterrows():
-            medB = row['Medio_Baixo']
-            medA = row['Medio_Alto']
-            col = row['Fator']
-            colC = col + 'C'
-            colV = col + 'V'
-            # print(colC)
+    for index, row in fatores.iterrows():
+        medB = row['Medio_Baixo']
+        medA = row['Medio_Alto']
+        col = row['Fator']
+        colC = col + 'C'
+        colV = col + 'V'
 
-            fatores_Est.loc[(fatores_Est[colV] >= medB) & (fatores_Est[colV] <= medA), colC] = 'Risco Médio'
-            fatores_Est.loc[fatores_Est[colV] < medB, colC] = 'Risco Baixo'
-            fatores_Est.loc[fatores_Est[colV] > medA, colC] = 'Risco Alto'
+        fatores_Est.loc[(fatores_Est[colV] >= medB) & (fatores_Est[colV] <= medA), colC] = 'Risco Médio'
+        fatores_Est.loc[fatores_Est[colV] < medB, colC] = 'Risco Baixo'
+        fatores_Est.loc[fatores_Est[colV] > medA, colC] = 'Risco Alto'
 
     print("Print Fatores")
     print(fatores_Est)
@@ -129,6 +128,7 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
         dimensoes_Est.loc[(dimensoes_Est[colV] >= medB) & (dimensoes_Est[colV] <= medA), colC] = 'Risco Médio'
         dimensoes_Est.loc[dimensoes_Est[colV] < medB, colC] = 'Risco Baixo'
         dimensoes_Est.loc[dimensoes_Est[colV] > medA, colC] = 'Risco Alto'
+
     print("Print Dimensões")
     print(dimensoes_Est)
 
@@ -156,6 +156,7 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     EPROF = EPROF.rename(columns={"Risco": "Total", 'E-PROFC': 'Risco'})
 
     return EPROF,EESTC,EESCC,EFAMC,ECOMC
+
 def piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC):
 
     #title = "Habilidade e receptividade do Professor "
