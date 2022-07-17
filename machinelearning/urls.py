@@ -15,15 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from prediction.views import PredicaoViewSet, DimensoesESTViewSet, FatoresESTViewSet, DimensoesViewSet, FatoresViewSet
+from prediction.views import DimensaoESTViewSet, FatorESTViewSet, DimensaoViewSet, FatorViewSet
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register('predicao', PredicaoViewSet, basename='predicao')
-router.register('dimensoes', DimensoesViewSet, basename='dimensoes')
-router.register('fatores', FatoresViewSet, basename='fatores')
-router.register('dimensoes_est', DimensoesESTViewSet, basename='dimensoes_est')
-router.register('fatore_est', FatoresESTViewSet, basename='fatores_est')
+router.register('dimensoes', DimensaoViewSet, basename='dimensoes')
+router.register('fatores', FatorViewSet, basename='fatores')
+router.register('dimensoes_est', DimensaoESTViewSet, basename='dimensoes_est')
+router.register('fatore_est', FatorESTViewSet, basename='fatores_est')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

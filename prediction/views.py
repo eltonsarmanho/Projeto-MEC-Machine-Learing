@@ -1,48 +1,39 @@
-from prediction.serializer import PredicaoSerializer, DimensoesESTSerializer, FatoresESTSerializer, DimensoesSerializer, FatoresSerializer
-from prediction.models import Predicao, DimensoesEST, FatoresEST, Dimensoes, Fatores
+from prediction.serializer import DimensaoESTSerializer, FatorESTSerializer, DimensaoSerializer, FatorSerializer
+from prediction.models import DimensaoEST, FatorEST, Dimensao, Fator
 from rest_framework import viewsets
 
-class PredicaoViewSet(viewsets.ModelViewSet):
-  """Fator de risco para os alunos"""
-  
-  serializer_class = PredicaoSerializer
-  http_method_names = ['get', 'post', 'put']
-  
-  def get_queryset(self):
-    return Predicao.objects.all()
-
-class DimensoesViewSet(viewsets.ModelViewSet):
+class DimensaoViewSet(viewsets.ModelViewSet):
   """Dimensões de risco para os alunos"""
   
-  serializer_class = DimensoesSerializer
+  serializer_class = DimensaoSerializer
   http_method_names = ['get', 'post', 'put']
   
   def get_queryset(self):
-    return Dimensoes.objects.all()
+    return Dimensao.objects.all()
 
-class FatoresViewSet(viewsets.ModelViewSet):
+class FatorViewSet(viewsets.ModelViewSet):
   """Fatores de risco para os alunos"""
   
-  serializer_class = FatoresSerializer
+  serializer_class = FatorSerializer
   http_method_names = ['get', 'post', 'put']
   
   def get_queryset(self):
-    return Fatores.objects.all()
+    return Fator.objects.all()
 
-class DimensoesESTViewSet(viewsets.ModelViewSet):
+class DimensaoESTViewSet(viewsets.ModelViewSet):
   """Dimensões do estudante"""
   
-  serializer_class = DimensoesESTSerializer
+  serializer_class = DimensaoESTSerializer
   http_method_names = ['get', 'post', 'put']
   
   def get_queryset(self):
-    return DimensoesEST.objects.all()
+    return DimensaoEST.objects.all()
   
-class FatoresESTViewSet(viewsets.ModelViewSet):
+class FatorESTViewSet(viewsets.ModelViewSet):
   """Fatores do estudante"""
   
-  serializer_class = FatoresESTSerializer
+  serializer_class = FatorESTSerializer
   http_method_names = ['get', 'post', 'put']
   
   def get_queryset(self):
-    return FatoresEST.objects.all()
+    return FatorEST.objects.all()

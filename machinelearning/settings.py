@@ -87,11 +87,19 @@ DATABASES = {
     },
     'datasource': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': config('NAME'),
-        'USER': config('USER'),
-        'PASSWORD': config('PASSWORD'),
-        'HOST': config('HOST'),
-        'PORT': config('PORT'),
+        'NAME': config('DATASOURCE_DB_NAME'),
+        'USER': config('DATASOURCE_DB_USER'),
+        'PASSWORD': config('DATASOURCE_DB_PASSWORD'),
+        'HOST': config('DATASOURCE_DB_HOST'),
+        'PORT': config('DATASOUCE_DB_PORT', '3306'),
+    },
+    'prediction': {
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': config('PREDICTION_DB_NAME'),
+        'USER': config('PREDICTION_DB_USER'),
+        'PASSWORD': config('PREDICTION_DB_PASSWORD'),
+        'HOST': config('PREDICTION_DB_HOST'),
+        'PORT': config('PREDICTION_DB_PORT', '3306'),
     }
 }
 

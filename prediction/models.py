@@ -1,29 +1,27 @@
 from django.db import models
 
-class Predicao(models.Model):
-    id_aluno = models.IntegerField('Id do aluno', null=True)
-    risco_escola = models.CharField('Risco da Escola', max_length=1, null=True)
-    risco_estudante = models.CharField('Risco do Estudante', max_length=1, null=True)
-    risco_geral = models.CharField('Risco Geral', max_length=1, null=True)
-    
-    class Meta:
-        ordering = ['id']
-        db_table = 'predicao'
-
-class Medias(models.Model):
+class Media(models.Model):
     medio_baixo = models.FloatField('Média de baixo', null=True)
     medio_alto = models.FloatField('Média de alto', null=True)
     
     class Meta:
         abstract = True
         
-class Fatores(Medias):
+class Fator(Media):
     fator = models.CharField('Fator', max_length=20, null=True)
+
+    class Meta:
+        ordering = ['id']
+        db_table = 'fatores'
         
-class Dimensoes(Medias):
+class Dimensao(Media):
     dimensao = models.CharField('Dimensão', max_length=20, null=True)
 
-class DimensoesEST(models.Model):
+    class Meta:
+        ordering = ['id']
+        db_table = 'dimensoes'
+
+class DimensaoEST(models.Model):
     RISCOS = (
         ('1', 'Risco Baixo'),
         ('2', 'Risco Médio'),
@@ -35,6 +33,7 @@ class DimensoesEST(models.Model):
     E_PROFV = models.FloatField('E-PROFV', null=True)
     E_FAMV = models.FloatField('E-FAMV', null=True)
     E_COMV = models.FloatField('E-COMV', null=True)
+    E_ESTV = models.FloatField('E-ESTV', null=True)
     E_ESCC = models.CharField('E-ESCC', max_length=1, choices=RISCOS, null=True)
     E_PROFC = models.CharField('E-PROFC', max_length=1, choices=RISCOS, null=True)
     E_FAMC = models.CharField('E-FAMC', max_length=1, choices=RISCOS, null=True)
@@ -45,7 +44,7 @@ class DimensoesEST(models.Model):
         ordering = ['id']
         db_table = 'dimensoes_est'
 
-class FatoresEST(models.Model):
+class FatorEST(models.Model):
     RISCOS = (
         ('1', 'Risco Baixo'),
         ('2', 'Risco Médio'),
@@ -55,7 +54,7 @@ class FatoresEST(models.Model):
     id_aluno = models.IntegerField('Id do aluno', null=True)
     E_ESC1V = models.FloatField('E-ESC1V', null=True)
     E_ESC2V = models.FloatField('E-ESC2V', null=True)
-    E_PROF21V = models.FloatField('E-PROF1V', null=True)
+    E_PROF1V = models.FloatField('E-PROF1V', null=True)
     E_PROF2V = models.FloatField('E-PROF2V', null=True)
     E_FAM1V = models.FloatField('E-FAM1V', null=True)
     E_FAM2V = models.FloatField('E-FAM2V', null=True)

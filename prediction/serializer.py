@@ -1,27 +1,22 @@
 from rest_framework import serializers
-from prediction.models import Predicao, DimensoesEST, FatoresEST, Dimensoes, Fatores
-class PredicaoSerializer(serializers.ModelSerializer):
+from prediction.models import DimensaoEST, FatorEST, Dimensao, Fator
+class DimensaoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Predicao
+        model = Dimensao
         fields = '__all__'
 
-class DimensoesSerializer(serializers.ModelSerializer):
+class FatorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Dimensoes
+        model = Fator
         fields = '__all__'
 
-class FatoresSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Fatores
-        fields = '__all__'
-
-class DimensoesESTSerializer(serializers.ModelSerializer):
+class DimensaoESTSerializer(serializers.ModelSerializer):
     # E_ESCC = serializers.CharField(source='get_E_ESCC_display')
     class Meta:
-        model = DimensoesEST
+        model = DimensaoEST
         fields = '__all__'
         
-class FatoresESTSerializer(serializers.ModelSerializer):
+class FatorESTSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FatoresEST
+        model = FatorEST
         fields = '__all__'
