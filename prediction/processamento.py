@@ -8,8 +8,8 @@ from prediction.models import FatorEST, DimensaoEST, Fator, Dimensao
 sns.set(color_codes=True)
 
 def loadData():
-    # df = pd.read_csv('Data/Coleta_Piloto_Colunas.csv')
-    df = pd.read_json(get_respostas())
+    df = pd.read_csv('Dataset/Coleta_Piloto_Colunas.csv')
+    #df = pd.read_json(get_respostas())
     # dataframe para os indices fatores medio baixo e medio alto
     d = {'Fator': ['E-ESC1', 'E-ESC2', 'E-PROF1', 'E-PROF2', 'E-FAM1', 'E-FAM2', 'E-COM1', 'E-COM2', 'E-COM3', 'E-EST1',
                    'E-EST2', 'E-EST3'],
@@ -237,32 +237,7 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
 
     return EPROF,EESTC,EESCC,EFAMC,ECOMC
 
-def piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC):
-
-    #title = "Habilidade e receptividade do Professor "
-    dimensao = ['E-EPROF','E-EST','E-ESC','E-FAM','E-COM']
-    title = "Risco por dimenstões"
-
-    fig, axes = plt.subplots(ncols=2,nrows=3, figsize=(4, 2), dpi=100)
-
-    plt.suptitle(title)
-    axe = axes.ravel()
-
-    ax1 = plt.subplot2grid(shape=(2, 6), loc=(0, 0), colspan=2)
-    ax2 = plt.subplot2grid((2, 6), (0, 2), colspan=2)
-    ax3 = plt.subplot2grid((2, 6), (0, 4), colspan=2)
-    ax4 = plt.subplot2grid((2, 6), (1, 1), colspan=2)
-    ax5 = plt.subplot2grid((2, 6), (1, 3), colspan=2)
-    axes = [ax1,ax2,ax3,ax4,ax5]
-    for ax,titulo,feature in zip(axes,dimensao,[EPROF,EESTC,EESCC,EFAMC,ECOMC]):
-
-        ax.pie(feature['Total'], labels=feature['Risco'], startangle=90, autopct='%1.0f%%', textprops={'fontsize': 14})
-        ax.set_title(titulo + ' em % ',fontsize=10, bbox={'facecolor': '0.8', 'pad': 5})
-
-
-    plt.show()
 
 if __name__ == '__main__':
     df,fatores_Est,fatores,dimensoes_Est,dimensoes = loadData()
     EPROF,EESTC,EESCC,EFAMC,ECOMC = processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes)
-    piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC)

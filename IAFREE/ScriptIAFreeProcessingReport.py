@@ -158,9 +158,8 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     return EPROF,EESTC,EESCC,EFAMC,ECOMC
 def piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC):
 
-    #title = "Habilidade e receptividade do Professor "
     dimensao = ['E-EPROF','E-EST','E-ESC','E-FAM','E-COM']
-    title = "Risco por dimenstões"
+    title = "Risco por dimensões"
 
     fig, axes = plt.subplots(ncols=2,nrows=3, figsize=(4, 2), dpi=100)
 
