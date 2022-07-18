@@ -17,7 +17,7 @@ def loadData():
          'Medio_Alto': [5.33, 3.33, 4.33, 4.00, 5.00, 5.00, 3.66, 3.66, 3.66, 4.00, 4.00, 3.33]}
     fatores = pd.DataFrame(data=d)
     for index, fator in fatores.iterrows():
-        fator_db, created = Fator.objects.using('prediction').update_or_create(
+        fator_db, created = Fator.objects.update_or_create(
             fator=fatores.loc[index, 'Fator'],
             defaults={
                 'medio_baixo': fatores.loc[index, 'Medio_Baixo'],
@@ -32,7 +32,7 @@ def loadData():
          'Medio_Alto': [4, 3.66, 4.33, 3.55, 3.41]}
     dimensoes = pd.DataFrame(data=d)
     for index, dimensao in dimensoes.iterrows():
-        dimensao_db, created = Dimensao.objects.using('prediction').update_or_create(
+        dimensao_db, created = Dimensao.objects.update_or_create(
             dimensao=dimensoes.loc[index, 'Dimensao'],
             defaults={
                 'medio_baixo': dimensoes.loc[index, 'Medio_Baixo'],
@@ -119,7 +119,7 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     fatores_est_banco = []
     count = 0
     for index, row in df.iterrows():
-        fator_est, created = FatorEST.objects.using('prediction').update_or_create(
+        fator_est, created = FatorEST.objects.update_or_create(
             id_aluno=fatores_Est.loc[index, 'IDALUNO'],
             defaults={
                 'E_ESC1V': fatores_Est.loc[index, 'E-ESC1V'],
@@ -194,7 +194,7 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     dimensoes_est_banco = []
     count = 0
     for index, row in dimensoes_Est.iterrows():
-        dimensoes_est, created = DimensaoEST.objects.using('prediction').update_or_create(
+        dimensoes_est, created = DimensaoEST.objects.update_or_create(
             id_aluno=dimensoes_Est.loc[index, 'IDALUNO'],
             defaults={
                 'E_ESCV': dimensoes_Est.loc[index, 'E-ESCV'],
