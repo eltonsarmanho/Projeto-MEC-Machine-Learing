@@ -8,8 +8,8 @@ from prediction.models import FatorEST, DimensaoEST, Fator, Dimensao
 sns.set(color_codes=True)
 
 def loadData():
-    df = pd.read_csv('Dataset/Coleta_Piloto_Colunas.csv')
-    #df = pd.read_json(get_respostas())
+    #df = pd.read_csv('Dataset/Coleta_Piloto_Colunas.csv')
+    df = pd.read_json(get_respostas())
     # dataframe para os indices fatores medio baixo e medio alto
     d = {'Fator': ['E-ESC1', 'E-ESC2', 'E-PROF1', 'E-PROF2', 'E-FAM1', 'E-FAM2', 'E-COM1', 'E-COM2', 'E-COM3', 'E-EST1',
                    'E-EST2', 'E-EST3'],
