@@ -3,7 +3,7 @@ import numpy as np
 from traitlets import default
 import matplotlib.pyplot as plt
 import seaborn as sns
-from datasource.conecta import get_respostas
+from prediction.conecta import get_respostas
 from prediction.models import FatorEST, DimensaoEST, Fator, Dimensao
 sns.set(color_codes=True)
 
