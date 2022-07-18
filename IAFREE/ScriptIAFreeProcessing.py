@@ -67,22 +67,22 @@ def loadData():
 def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     # for pra computar indices e valores
     for index, row in df.iterrows():
-        eesc1 = row[["QA1", "QA26", 'QA6']].mean()
-        eesc2 = row[["QA3", "QE1", 'QE6']].mean()
+        eesc1 = row[["QA1", "QA26", 'QA6']].mean(skipna=True)
+        eesc2 = row[["QA3", "QE1", 'QE6']].mean(skipna=True)
 
-        eprof1 = row[["QA17", "QA7", 'QA12']].mean()
-        eprof2 = row[["QA22", "QA27", 'QA31']].mean()
+        eprof1 = row[["QA17", "QA7", 'QA12']].mean(skipna=True)
+        eprof2 = row[["QA22", "QA27", 'QA31']].mean(skipna=True)
 
-        efam1 = row[["QA23", "QE12", 'QE3']].mean()#QA23,QE12,QE03
-        efam2 = row[["QA13", "QA5", 'QA18']].mean()#QA13,QA05,QA18
+        efam1 = row[["QA23", "QE12", 'QE3']].mean(skipna=True)#QA23,QE12,QE03
+        efam2 = row[["QA13", "QA5", 'QA18']].mean(skipna=True)#QA13,QA05,QA18
 
-        ecom1 = row[["QE9", "QE16", 'QE4']].mean()#QE09,QE16,QE04
-        ecom2 = row[["QA4", "QA19", 'QA24']].mean()#QA04,QA19,QA24
-        ecom3 = row[["QA18", 'QA11', 'QE15']].mean()#QA18,QA11,QE15
+        ecom1 = row[["QE9", "QE16", 'QE4']].mean(skipna=True)#QE09,QE16,QE04
+        ecom2 = row[["QA4", "QA19", 'QA24']].mean(skipna=True)#QA04,QA19,QA24
+        ecom3 = row[["QA18", 'QA11', 'QE15']].mean(skipna=True)#QA18,QA11,QE15
 
-        eest1 = row[["QA32", "QA9", 'QA25']].mean()#QA32, QA09, QA25
-        eest2 = row[["QA10", "QA25", 'QA15']].mean()#QA10, QA25, QA15
-        eest3 = row[["QE10", "QE12", 'QE4']].mean()#QE10, QE18, QE11
+        eest1 = row[["QA32", "QA9", 'QA25']].mean(skipna=True)#QA32, QA09, QA25
+        eest2 = row[["QA10", "QA25", 'QA15']].mean(skipna=True)#QA10, QA25, QA15
+        eest3 = row[["QE10", "QE12", 'QE4']].mean(skipna=True)#QE10, QE18, QE11
 
 
 
@@ -157,15 +157,15 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
 
     # for pra computar indices e valores
     for index, row in fatores_Est.iterrows():
-        eesc = row[['E-ESC1V', "E-ESC2V"]].mean()
+        eesc = row[['E-ESC1V', "E-ESC2V"]].mean(skipna=True)
 
-        eprof = row[["E-PROF1V", "E-PROF2V"]].mean()
+        eprof = row[["E-PROF1V", "E-PROF2V"]].mean(skipna=True)
 
-        efam = row[["E-FAM1V", "E-FAM2V"]].mean()
+        efam = row[["E-FAM1V", "E-FAM2V"]].mean(skipna=True)
 
-        ecom = row[["E-COM1V", "E-COM2V", 'E-COM3V']].mean()
+        ecom = row[["E-COM1V", "E-COM2V", 'E-COM3V']].mean(skipna=True)
 
-        eest = row[["E-EST1V", "E-EST2V", 'E-EST3V']].mean()
+        eest = row[["E-EST1V", "E-EST2V", 'E-EST3V']].mean(skipna=True)
 
         dimensoes_Est.loc[index, 'E-ESCV'] = eesc
 
@@ -236,6 +236,7 @@ def processing(df,fatores_Est,fatores,dimensoes_Est,dimensoes):
     EPROF = EPROF.rename(columns={"Risco": "Total", 'E-PROFC': 'Risco'})
 
     return EPROF,EESTC,EESCC,EFAMC,ECOMC
+
 def piePlot(EPROF,EESTC,EESCC,EFAMC,ECOMC):
 
     #title = "Habilidade e receptividade do Professor "
