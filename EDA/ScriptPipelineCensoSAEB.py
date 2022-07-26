@@ -298,20 +298,19 @@ class ScriptPipelineCensoSAEB:
             dataset = pd.read_csv(url, delimiter=',', encoding="utf-8", )
 
             columns = dataset.columns;
-            for c in columns:
-                print(c)
+
             # columns_drop_1 = filter(lambda name: name.find("NIVEL_") != -1, columns);
             # columns_drop_2 = filter(lambda name: name.find("TAXA_") != -1, columns);
             # columns_drop_3 = filter(lambda name: name.find("PC_") != -1, columns);
 
-            columns_selected = list(filter(lambda name: name.find("MEDIA") != -1, columns));
+            columns_selected = list(filter(lambda name: name.find("MEDIA") != -1 or name.find("NU_PRESENTES") != -1, columns));
             columns_selected.append('ID_ESCOLA')
             columns_selected.append('ID_SAEB')
             columns_selected.append('ID_REGIAO')
             columns_selected.append('ID_UF')
 
             print(columns_selected)
-            print(dataset.columns.difference(columns_selected))
+            #print(dataset.columns.difference(columns_selected))
 
             dataset_reduce = dataset.drop(dataset.columns.difference(columns_selected), axis=1)
 
