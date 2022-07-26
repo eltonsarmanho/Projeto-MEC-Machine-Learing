@@ -62,15 +62,19 @@ def preprocessamento(df):
     columns_drop = ['IN_REGULAR', 'IN_SERIE_ANO', 'REGULAR', 'IN_FUNDAMENTAL_CICLOS',
                     'IN_BANHEIRO_FUNCIONARIOS', 'IN_COMUM_FUND_AI', 'IN_DORMITORIO_ALUNO',
                     'IN_COMUM_PRE', 'IN_REDES_SOCIAIS', 'IN_PERIODOS_SEMESTRAIS', 'IN_PROFISSIONALIZANTE', 'IN_EJA',
-                    'IN_QUADRA_ESPORTES_COBERTA','IN_MEDIACAO_PRESENCIAL',
+                    'IN_QUADRA_ESPORTES_COBERTA', 'IN_MEDIACAO_PRESENCIAL',
                     'PROFISSIONALIZANTE', 'IN_RESERVA_PPI', 'IN_RESERVA_PUBLICA', 'IN_COMUM_MEDIO_INTEGRADO',
-                    'IN_ESGOTO_FOSSA_COMUM']
+                    'IN_ESGOTO_FOSSA_COMUM', 'IN_COZINHA', 'IN_DESPENSA', 'IN_ALMOXARIFADO', 'IN_BIBLIOTECA',
+                    'IN_PATIO_COBERTO', 'IN_SALA_PROFESSOR', 'IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
+                    'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
+                    'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM',
+                    'IN_TRATAMENTO_LIXO_INEXISTENTE', 'AEE_LIBRAS', 'AEE_BRAILLE', 'IN_EQUIP_IMPRESSORA_MULT']
 
 
     df.drop(columns_drop,axis=1,inplace=True)
-    data =  df['IN_BIBLIOTECA']
-    print(data.describe())
-    histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
+    #data =  df['IN_BIBLIOTECA']
+    #print(data.describe())
+    #histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
     #print("Detect missing values.")
     #print(df.isna().sum() / len(df))
 
@@ -100,28 +104,26 @@ def runAnaliseFactorial(dataset):
     print("runAnaliseFactorial")
     columns_numeric = pd.DataFrame(dataset._get_numeric_data()).columns
     columns_categorical = list(pd.DataFrame(dataset.select_dtypes(['object'])).columns)
-
     columns_categorical.append('CO_ENTIDADE')
 
     print("Categorical Columns")
     print(columns_categorical)
-    drop_columns = columns_numeric
-    dataset_reduce = dataset.drop(columns=columns_categorical, axis=1)
-
+    dataset_reduce = dataset.copy().drop(columns=columns_categorical, axis=1)
+    dataset_reduce = dataset_reduce.astype(float)
 
     result = dataset_reduce.isna().mean()
-    dataset_reduce = dataset_reduce.loc[:, result < .1]
 
+    dataset_reduce = dataset_reduce.loc[:, result < .1]
+    # Remove colunas com valores iguais em todas as linhas
     nunique = dataset_reduce.nunique()
     cols_to_drop = nunique[nunique == 1].index
-    dataset_reduce = dataset_reduce.drop(cols_to_drop, axis=1)
+    dataset_reduce.drop(cols_to_drop, axis=1, inplace=True)
 
     columns = dataset_reduce.columns;
     filtered = filter(lambda name: name.find("CO_") != -1, columns);
-    dataset_reduce.drop(filtered,axis=1,inplace=True)
+    dataset_reduce.drop(filtered, axis=1, inplace=True)
 
     print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
-
 
     chi_square_value, p_value = calculate_bartlett_sphericity(dataset_reduce)
     print(chi_square_value, p_value);
@@ -129,46 +131,38 @@ def runAnaliseFactorial(dataset):
     kmo_all, kmo_model = calculate_kmo(dataset_reduce)
     print('kmo: ',kmo_model)
 
-    # Create factor analysis object and perform factor analysis
-    fa = FactorAnalyzer(n_factors=30, rotation=None)
+    # 6 fatores
+    fa = FactorAnalyzer(12, rotation="varimax")
+    # o objeto tem o método fit para análise do dataframe
     fa.fit(dataset_reduce)
-    # Check Eigenvalues
-    ev, v = fa.get_eigenvalues()
+    # Desse extraimos as cargas fatoriais (factor loadings)
+    # Observe que fa.loadings_ é um numpy.array. Usamos o método
+    # do pandas pd.DataFrame.from_records para convertê-lo em um dataframe
+    factorLoadings = pd.DataFrame.from_records(fa.loadings_)
 
-    # Create scree plot using matplotlib
-    plt.scatter(range(1, dataset_reduce.shape[1] + 1), ev)
-    plt.plot(range(1, dataset_reduce.shape[1] + 1), ev)
-    plt.title('Scree Plot')
-    plt.xlabel('Factors')
-    plt.ylabel('Eigenvalue')
-    plt.grid()
-    plt.show()
-
-
-    # Create factor analysis object and perform factor analysis
-
-    fa = FactorAnalyzer(n_factors=3,rotation="varimax")
-    fa.fit(dataset_reduce)
-    #print(fa.loadings_)
-    fa_loading_df = pd.DataFrame(fa.loadings_,index= dataset_reduce.columns, columns=['Factor 1', 'Factor 2', 'Factor 3'])
-    #print(fa_loading_df)
-
-    # Get variance of each factors
-    #print(fa.get_factor_variance())
-    fa_variance_df = pd.DataFrame(fa.get_factor_variance(), index=['SS Loadings', 'Proportion Var', 'Cumulative Var'],
-                                  columns=['Factor 1', 'Factor 2', 'Factor 3'])
-    #print(fa_variance_df)
+    # Selecionar as linhas acima de 0.6 e abaixo -0.6
+    factorLoadings = factorLoadings[factorLoadings.gt(.6).any(axis=1) | factorLoadings.lt(-.6).any(axis=1)]
 
     array = fa.transform(dataset_reduce)
 
     factor1 = np.around(array[:, 0], 2)
-    dataset['Acesso Internet'] = factor1
+    dataset['Estrutura'] = factor1
 
     factor2 = np.around(array[:, 1], 2)
-    dataset['Acessibilidade'] = factor2
+    dataset['PED'] = factor2
 
-    factor3 = np.around(array[:, 2], 2)
-    dataset['Deficiencia Fisica'] = factor3
+    factor3 = np.around(array[:, 4], 2)
+    dataset['LibrasBraile'] = factor3
+
+    factor4 = np.around(array[:, 5], 2)
+    dataset['PNE'] = factor4
+
+    factor5 = np.around(array[:, 6], 2)
+    dataset['Acessibilidade'] = factor5
+
+    factor6 = np.around(array[:, 11], 2)
+    dataset['Transporte'] = factor6
+    
     return dataset;
 
 def normalize(X):
@@ -185,15 +179,14 @@ def mediaByRegiaoComFator(dataset):
     axins1 = inset_axes(ax, width='10%', height='2%', loc='lower right')
 
     dataset_regiao = dataset.copy()
-    dataset_regiao.dropna(subset=['MEDIA_EM_LP', 'MEDIA_EM_MT',
-                                  'NU_PRESENTES_EM'], inplace=True)
-    dataset_regiao_grouped = dataset_regiao.groupby('ID_REGIAO')
-    mean_regiao_ME_MT = dataset_regiao_grouped['MEDIA_EM_MT'].mean()
-    mean_regiao_ME_PT = dataset_regiao_grouped['MEDIA_EM_LP'].mean()
+    dataset_regiao.dropna(subset=['MEDIA_3EM_LP', 'MEDIA_3EM_MT',], inplace=True)
+    dataset_regiao_grouped = dataset_regiao.groupby('CO_UF')
+    mean_regiao_ME_MT = dataset_regiao_grouped['MEDIA_3EM_MT'].mean()
+    mean_regiao_ME_PT = dataset_regiao_grouped['MEDIA_3EM_LP'].mean()
 
-    UFs = dataset_regiao_grouped['NU_PRESENTES_EM'].count().index
-    size_presentes = dataset_regiao_grouped['NU_PRESENTES_EM'].count()
-    color = dataset_regiao_grouped['Acesso Internet'].sum()*40
+    UFs = dataset_regiao_grouped['MEDIA_3EM_MT'].count().index
+    size_presentes = dataset_regiao_grouped['MEDIA_3EM_MT'].count()
+    color = dataset_regiao_grouped['Transporte'].sum()*40
 
 
     hexbins = ax.hexbin(x=UFs,y=mean_regiao_ME_MT,
@@ -212,34 +205,38 @@ def mediaByRegiaoComFator(dataset):
 def resumeDataframe(dataset,fator):
     dataset_regiao = dataset.copy()
 
-    dataset_regiao.dropna(subset=['MEDIA_EM_LP', 'MEDIA_EM_MT',
-                                  'NU_PRESENTES_EM'], inplace=True)
-    dataset_regiao_grouped = dataset_regiao.groupby('ID_REGIAO')
-    mean_regiao_ME_MT = dataset_regiao_grouped['MEDIA_EM_MT'].mean()
-    mean_regiao_ME_PT = dataset_regiao_grouped['MEDIA_EM_LP'].mean()
+    #dataset_regiao.dropna(subset=['MEDIA_3EM_LP', 'MEDIA_3EM_MT','NU_PRESENTES_EM'], inplace=True)
+    dataset_regiao.dropna(subset=['MEDIA_3EM_LP', 'MEDIA_3EM_MT',], inplace=True)
+    #dataset_regiao_grouped = dataset_regiao.groupby('ID_REGIAO')
+    dataset_regiao_grouped = dataset_regiao.groupby('ID_UF')
+    mean_regiao_ME_MT = dataset_regiao_grouped['MEDIA_3EM_MT'].mean()
+    mean_regiao_ME_PT = dataset_regiao_grouped['MEDIA_3EM_LP'].mean()
 
-    UFs = dataset_regiao_grouped['NU_PRESENTES_EM'].count().index
-    size_presentes = dataset_regiao_grouped['NU_PRESENTES_EM'].count()
-
+    UFs = dataset_regiao_grouped['ID_UF'].count().index
+    print(UFs)
+    dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI',23:'CE',24:'RN',
+              25:'PB',26:'PE',27:'AL',28:'SE',29:'BA',31:'MG',32:'ES',33:'RJ',35:'SP',41:'PR',42:'SC',43:'RS',50:'MS',
+              51:'MT',52:'GO',53:'DF',}
+    UFs_nome = [dict_uf[x] for x in UFs]
+    print(UFs_nome)
+    #size_presentes = dataset_regiao_grouped['NU_PRESENTES_EM'].count()
+    size_presentes = 10
     normalized = normalize(dataset_regiao_grouped[fator].sum()) * 255
     color = [str(1 - (item / 255.)) for item in normalized]
-    return UFs, mean_regiao_ME_PT,size_presentes,color
+    return UFs_nome, mean_regiao_ME_MT,size_presentes,color
 
-def mediaByRegiaoAnual(dataset_1,dataset_2):
+def mediaByRegiaoAnual(dataset_1,dataset_2=None):
     #fator = 'Deficiencia Fisica'
-    fator = 'Acesso Internet'
+    fator = ['Estrutura','PED','LibrasBraile','PNE','Acessibilidade','Transporte'][0]
     #fator = 'Acessibilidade'
     UFs, mean_regiao_ME,size_presentes,color = resumeDataframe(dataset_1,fator)
 
-    plt.scatter(x=UFs,
-                y=mean_regiao_ME,s=size_presentes*10,c=color,edgecolors="black",
+    plt.scatter(x=UFs, y=mean_regiao_ME,s=size_presentes*10,c=color,edgecolors="black",
              alpha=0.5,label='2019')
-    UFs, mean_regiao_ME, size_presentes, color = resumeDataframe(dataset_2,fator)
-    plt.scatter(x=UFs,
-                y=mean_regiao_ME, s=size_presentes * 10, c=color,marker=',', edgecolors="black",
-                alpha=0.5,label='2017')
+    #UFs, mean_regiao_ME, size_presentes, color = resumeDataframe(dataset_2,fator)
+    #plt.scatter(x=UFs,y=mean_regiao_ME, s=size_presentes * 10, c=color,marker=',', edgecolors="black",alpha=0.5,label='2017')
     plt.legend( markerscale=0.5, scatterpoints=1, fontsize=10)
-    plt.title('Média em Pt no EM com Fator '+fator)
+    plt.title('Média em Matemática no EM com Fator '+fator)
     plt.ylabel('Média')
     plt.xlabel('Região')
 
@@ -258,8 +255,8 @@ if __name__ == '__main__':
     dataframe_1 = preprocessamento(data_1)
     #dataframe_2 = preprocessamento(data_2)
 
-    #dataframe_1 = runAnaliseFactorial(data_2)
+    dataframe_1 = runAnaliseFactorial(dataframe_1)
     #dataframe_2 = runAnaliseFactorial(dataframe_2)
 
-    #mediaByRegiao(dataframe)
-    #mediaByRegiaoAnual(dataframe_1,dataframe_2)
+    #mediaByRegiaoComFator(dataframe_1)
+    mediaByRegiaoAnual(dataframe_1)

@@ -55,7 +55,8 @@ def preprocessamento(df):
                     'IN_ESGOTO_FOSSA_COMUM','IN_COZINHA', 'IN_DESPENSA','IN_ALMOXARIFADO','IN_BIBLIOTECA',
                     'IN_PATIO_COBERTO','IN_SALA_PROFESSOR','IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
                     'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
-                    'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM', 'IN_TRATAMENTO_LIXO_INEXISTENTE']
+                    'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM',
+                    'IN_TRATAMENTO_LIXO_INEXISTENTE','AEE_LIBRAS', 'AEE_BRAILLE','IN_EQUIP_IMPRESSORA_MULT']
 
     df.drop(columns_drop, axis=1, inplace=True)
     return df
@@ -123,7 +124,7 @@ def checkFeasibility(dataset):
     #plt.show()
 
     # 6 fatores
-    fa = FactorAnalyzer(14, rotation="varimax")
+    fa = FactorAnalyzer(12, rotation="varimax")
 
     # o objeto tem o método fit para análise do dataframe
     fa.fit(dataset_reduce)
