@@ -314,6 +314,7 @@ def processa_from_dict(dados):
         fatores_Est.loc[fatores_Est[colV] < medB, colC] = 'Risco Baixo'
         fatores_Est.loc[fatores_Est[colV] > medA, colC] = 'Risco Alto'
         
+    fatores_Est = fatores_Est.fillna(0)
     print("Print Fatores")
     print(fatores_Est)
 
@@ -349,6 +350,7 @@ def processa_from_dict(dados):
         dimensoes_Est.loc[dimensoes_Est[colV] < medB, colC] = 'Risco Baixo'
         dimensoes_Est.loc[dimensoes_Est[colV] > medA, colC] = 'Risco Alto'
 
+    dimensoes_Est = dimensoes_Est.fillna(0)
     print("Print Dimensões")
     print(dimensoes_Est)
 
