@@ -15,16 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from prediction.views import DimensaoESTViewSet, FatorESTViewSet, DimensaoViewSet, FatorViewSet
+from prediction import views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register('dimensoes', DimensaoViewSet, basename='dimensoes')
-router.register('fatores', FatorViewSet, basename='fatores')
-router.register('dimensoes_est', DimensaoESTViewSet, basename='dimensoes_est')
-router.register('fatore_est', FatorESTViewSet, basename='fatores_est')
+router.register('dimensoes', views.DimensaoViewSet, basename='dimensoes')
+router.register('fatores', views.FatorViewSet, basename='fatores')
+router.register('dimensoes_est', views.DimensaoESTViewSet, basename='dimensoes_est')
+router.register('fatore_est', views.FatorESTViewSet, basename='fatores_est')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    path('processamento_from_json/', views.ProcessamentoFromJson.as_view()),
 ]
