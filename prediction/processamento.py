@@ -370,4 +370,8 @@ def processa_from_dict(dados):
     # EPROF = EPROF.rename(columns={"Risco": "Total", 'E-PROFC': 'Risco'})
 
     # return [EPROF, EESTC, EESCC, EFAMC, ECOMC]
-    return [fatores_Est, dimensoes_Est]
+    result = [fatores_Est, dimensoes_Est]  
+    return map(df_to_dict, result)
+
+def df_to_dict(df):
+    return df.to_dict(orient='records')
