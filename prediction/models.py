@@ -1,3 +1,4 @@
+from statistics import mode
 from django.db import models
 
 class Media(models.Model):
@@ -39,6 +40,8 @@ class DimensaoEST(models.Model):
     E_FAMC = models.CharField('E-FAMC', max_length=1, choices=RISCOS, null=True)
     E_COMC = models.CharField('E-COMC', max_length=1, choices=RISCOS, null=True)
     E_ESTC = models.CharField('E-ESTC', max_length=1, choices=RISCOS, null=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['id']
@@ -76,6 +79,8 @@ class FatorEST(models.Model):
     E_EST1C = models.CharField('E-ESTC', max_length=1, choices=RISCOS, null=True)
     E_EST2C = models.CharField('E-ESTC', max_length=2, choices=RISCOS, null=True)
     E_EST3C = models.CharField('E-ESTC', max_length=3, choices=RISCOS, null=True)
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['id']
