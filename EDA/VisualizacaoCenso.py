@@ -10,7 +10,7 @@ from factor_analyzer.factor_analyzer import calculate_bartlett_sphericity
 from factor_analyzer.factor_analyzer import calculate_kmo
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from sklearn import preprocessing
-
+from sklearn.preprocessing import StandardScaler
 import os
 os.environ["QT_QPA_PLATFORM"] = "wayland"
 
@@ -162,7 +162,8 @@ def runAnaliseFactorial(dataset):
 
     factor6 = np.around(array[:, 11], 2)
     dataset['Transporte'] = factor6
-    
+    dataset.to_csv('../Dataset/inep_saeb_merge_fatorial_2019.csv', sep='\t', encoding='utf-8',index=False)
+
     return dataset;
 
 def normalize(X):
@@ -206,33 +207,38 @@ def resumeDataframe(dataset,fator):
     dataset_regiao = dataset.copy()
 
     #dataset_regiao.dropna(subset=['MEDIA_3EM_LP', 'MEDIA_3EM_MT','NU_PRESENTES_EM'], inplace=True)
-    dataset_regiao.dropna(subset=['MEDIA_3EM_LP', 'MEDIA_3EM_MT',], inplace=True)
-    #dataset_regiao_grouped = dataset_regiao.groupby('ID_REGIAO')
-    dataset_regiao_grouped = dataset_regiao.groupby('ID_UF')
-    mean_regiao_ME_MT = dataset_regiao_grouped['MEDIA_3EM_MT'].mean()
-    mean_regiao_ME_PT = dataset_regiao_grouped['MEDIA_3EM_LP'].mean()
+    dataset_regiao.dropna(subset=['MEDIA_EM_LP', 'MEDIA_EM_MT',], inplace=True)
 
-    UFs = dataset_regiao_grouped['ID_UF'].count().index
-    print(UFs)
+    dataset_regiao_grouped = dataset_regiao.groupby('ID_REGIAO')
+    #dataset_regiao_grouped = dataset_regiao.groupby('ID_UF')
+    mean_regiao_ME_MT = dataset_regiao_grouped['MEDIA_EM_MT'].mean()
+    mean_regiao_ME_PT = dataset_regiao_grouped['MEDIA_EM_LP'].mean()
+
+    #UFs = dataset_regiao_grouped['ID_UF'].count().index
+    Regions = dataset_regiao_grouped['ID_REGIAO'].count().index
+    print(Regions)
+    dict_regiao = {1:'Norte',2:'Nordeste',3:'Sudeste',4:'Sul',5:'Centro-Oeste'}
+
     dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI',23:'CE',24:'RN',
               25:'PB',26:'PE',27:'AL',28:'SE',29:'BA',31:'MG',32:'ES',33:'RJ',35:'SP',41:'PR',42:'SC',43:'RS',50:'MS',
               51:'MT',52:'GO',53:'DF',}
-    UFs_nome = [dict_uf[x] for x in UFs]
-    print(UFs_nome)
-    #size_presentes = dataset_regiao_grouped['NU_PRESENTES_EM'].count()
-    size_presentes = 10
+    #UFs_ = [dict_uf[x] for x in UFs]
+    UFs_ = [dict_regiao[x] for x in Regions]
+    print(UFs_)
+    size_presentes = dataset_regiao_grouped['NU_PRESENTES_EM'].count().index
+    #size_presentes = 10
     normalized = normalize(dataset_regiao_grouped[fator].sum()) * 255
     color = [str(1 - (item / 255.)) for item in normalized]
-    return UFs_nome, mean_regiao_ME_MT,size_presentes,color
+
+    return UFs_, mean_regiao_ME_MT,size_presentes,color
 
 def mediaByRegiaoAnual(dataset_1,dataset_2=None):
     #fator = 'Deficiencia Fisica'
-    fator = ['Estrutura','PED','LibrasBraile','PNE','Acessibilidade','Transporte'][0]
+    fator = ['Estrutura','PED','LibrasBraile','PNE','Acessibilidade','Transporte'][2]
     #fator = 'Acessibilidade'
     UFs, mean_regiao_ME,size_presentes,color = resumeDataframe(dataset_1,fator)
-
-    plt.scatter(x=UFs, y=mean_regiao_ME,s=size_presentes*10,c=color,edgecolors="black",
-             alpha=0.5,label='2019')
+    print(UFs, mean_regiao_ME,size_presentes,color )
+    plt.scatter(x=UFs, y=mean_regiao_ME,s=size_presentes*200,c=color,edgecolors="black",alpha=0.5,label='2019')
     #UFs, mean_regiao_ME, size_presentes, color = resumeDataframe(dataset_2,fator)
     #plt.scatter(x=UFs,y=mean_regiao_ME, s=size_presentes * 10, c=color,marker=',', edgecolors="black",alpha=0.5,label='2017')
     plt.legend( markerscale=0.5, scatterpoints=1, fontsize=10)
