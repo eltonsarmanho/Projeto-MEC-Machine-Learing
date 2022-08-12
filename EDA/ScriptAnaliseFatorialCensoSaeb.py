@@ -52,11 +52,19 @@ def preprocessamento(df):
                     'IN_COMUM_PRE', 'IN_REDES_SOCIAIS', 'IN_PERIODOS_SEMESTRAIS', 'IN_PROFISSIONALIZANTE', 'IN_EJA',
                     'IN_QUADRA_ESPORTES_COBERTA','IN_MEDIACAO_PRESENCIAL',
                     'PROFISSIONALIZANTE', 'IN_RESERVA_PPI', 'IN_RESERVA_PUBLICA', 'IN_COMUM_MEDIO_INTEGRADO',
-                    'IN_ESGOTO_FOSSA_COMUM','IN_COZINHA', 'IN_DESPENSA','IN_ALMOXARIFADO','IN_BIBLIOTECA',
-                    'IN_PATIO_COBERTO','IN_SALA_PROFESSOR','IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
-                    'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
-                    'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM',
-                    'IN_TRATAMENTO_LIXO_INEXISTENTE','AEE_LIBRAS', 'AEE_BRAILLE','IN_EQUIP_IMPRESSORA_MULT']
+                    'IN_ESGOTO_FOSSA_COMUM','IN_ESGOTO_FOSSA',
+                    'IN_INTERNET', 'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
+                    'IN_BIBLIOTECA',
+                    #'IN_COZINHA', 'IN_DESPENSA','IN_ALMOXARIFADO','IN_BIBLIOTECA',
+                    #'IN_PATIO_COBERTO','IN_SALA_PROFESSOR','IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
+                    #'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
+                    #'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM','IN_TRATAMENTO_LIXO_INEXISTENTE',
+                    #'AEE_LIBRAS', 'AEE_BRAILLE',
+                    'IN_EQUIP_IMPRESSORA_MULT',
+                    'IN_COMUM_MEDIO_MEDIO',
+                    'EDUCACAO_INDIGENA', 'IN_EDUCACAO_INDIGENA',
+                    'IN_ORGAO_ASS_PAIS', 'IN_ORGAO_ASS_PAIS_MESTRES', 'IN_ORGAO_CONSELHO_ESCOLAR','IN_ORGAO_GREMIO_ESTUDANTIL', 'IN_ORGAO_OUTROS', 'IN_ORGAO_NENHUM'
+                    ]
 
     df.drop(columns_drop, axis=1, inplace=True)
     return df
@@ -78,6 +86,8 @@ def checkFeasibility(dataset):
     columns_numeric = pd.DataFrame(dataset._get_numeric_data()).columns
     columns_categorical = list(pd.DataFrame(dataset.select_dtypes(['object'])).columns)
     columns_categorical.append('CO_ENTIDADE')
+    columns_categorical.append('ID_REGIAO')
+    columns_categorical.append('ID_UF')
 
     print("Categorical Columns")
     print(columns_categorical)
@@ -98,6 +108,7 @@ def checkFeasibility(dataset):
     #Remove as columnas relacionadas a códigos
     columns = dataset_reduce.columns;
     filtered = filter(lambda name: name.find("CO_") != -1, columns);
+
     dataset_reduce.drop(filtered, axis=1, inplace=True)
 
     print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
@@ -136,7 +147,7 @@ def checkFeasibility(dataset):
     #print('Numero de Fatores = {}'.format(number_of_factors))
 
     #Apos saber Numero de Fatores com eigenvalues > 1
-    fa = FactorAnalyzer(46, rotation="varimax")
+    fa = FactorAnalyzer(12, rotation="varimax")
 
     # o objeto tem o método fit para análise do dataframe
     fa.fit(dataset_reduce)
@@ -147,21 +158,24 @@ def checkFeasibility(dataset):
     factorLoadings = pd.DataFrame.from_records(fa.loadings_)
 
     # Para ver a dataframe gerado:
-    #factorLoadings.head(4)
+    # factorLoadings.head(4)
     # Substitue as linhas pelo nomes dos itens
     factorLoadings.index = dataset_reduce.columns
-    #print(factorLoadings.describe())
-    data_filtered = factorLoadings.copy()
 
-    for c in data_filtered.columns:
-        data = data_filtered[abs(data_filtered[c])>0.6]
+    threshould = 0.55
+    drop_factos = [c for c in factorLoadings.columns if len(factorLoadings[abs(factorLoadings[c]) > threshould]) == 0]
+    factorLoadings.drop(drop_factos, axis=1, inplace=True)
+    for c in factorLoadings.columns:
+        data = factorLoadings[abs(factorLoadings[c])>threshould]
         print("Fator {} formado por {}.".format(c,data[c].index.values.tolist()))
 
-    #Selecionar as linhas acima de 0.6 e abaixo -0.6
-    factorLoadings = factorLoadings[factorLoadings.gt(.6).any(axis=1) | factorLoadings.lt(-.6).any(axis=1)]
+    #Selecionar as linhas acima de threshould e abaixo -threshould
+    factorLoadings = factorLoadings[factorLoadings.gt(threshould).any(axis=1) | factorLoadings.lt(-1*threshould).any(axis=1)]
+    print(factorLoadings.shape)
+
     plt.figure(figsize=(8, 6))
     sns.set(font_scale=.9)
-    sns.heatmap(factorLoadings, linewidths=1, linecolor='#ffffff', cmap="YlGnBu", xticklabels=1, yticklabels=1)
+    sns.heatmap(factorLoadings, linewidths=1, linecolor='#ffffff', cmap="RdYlGn", xticklabels=1, yticklabels=1)
     plt.show()
 if __name__ == '__main__':
     dataset = load()

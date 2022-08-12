@@ -39,13 +39,14 @@ def getValue_upper_whisker_quarile(data):
 
 def preprocessamento(df):
     # Dropping unnecessary columns
-    #Pegar 10 valores mais frequentes
+    # Pegar 10 valores mais frequentes
     n = 10
     data = df['QT_PROF_PSICOLOGO']
     mode = data.value_counts()[:n].index.tolist()
-    df['QT_PROF_PSICOLOGO'] = reduceNoise(data,data.mean(),max(mode))
+    df['QT_PROF_PSICOLOGO'] = reduceNoise(data, data.mean(), max(mode))
 
-    df['IN_ACESSO_INTERNET_COMPUTADOR'] = reduceNoise(df['IN_ACESSO_INTERNET_COMPUTADOR'],data.mean(),data.mean())
+    df['IN_ACESSO_INTERNET_COMPUTADOR'] = reduceNoise(df['IN_ACESSO_INTERNET_COMPUTADOR'], data.mean(), data.mean())
+
 
     for parametro in ['NECESSIDADE_ESPECIAL','IN_BIBLIOTECA']:
         data = df[parametro]
@@ -53,32 +54,34 @@ def preprocessamento(df):
         indicator = getValue_upper_whisker_quarile(data)[1]
         df[parametro] = reduceNoise(data,threshould,indicator)
 
-    for parametro in ['BAIXA_VISAO','DEF_AUDITIVA','DEF_FISICA','DEF_INTELECTUAL','TRANSPORTE_PUBLICO','TRANSP_ONIBUS']:
+    for parametro in ['BAIXA_VISAO', 'DEF_AUDITIVA', 'DEF_FISICA', 'DEF_INTELECTUAL', 'TRANSPORTE_PUBLICO',
+                      'TRANSP_ONIBUS']:
         data = df[parametro]
         mode = data.value_counts()[:n].index.tolist()
         threshould = max(mode)
-        df[parametro] = reduceNoise(data,threshould,threshould)
+        df[parametro] = reduceNoise(data, threshould, threshould)
 
     columns_drop = ['IN_REGULAR', 'IN_SERIE_ANO', 'REGULAR', 'IN_FUNDAMENTAL_CICLOS',
                     'IN_BANHEIRO_FUNCIONARIOS', 'IN_COMUM_FUND_AI', 'IN_DORMITORIO_ALUNO',
                     'IN_COMUM_PRE', 'IN_REDES_SOCIAIS', 'IN_PERIODOS_SEMESTRAIS', 'IN_PROFISSIONALIZANTE', 'IN_EJA',
-                    'IN_QUADRA_ESPORTES_COBERTA', 'IN_MEDIACAO_PRESENCIAL',
+                    'IN_QUADRA_ESPORTES_COBERTA','IN_MEDIACAO_PRESENCIAL',
                     'PROFISSIONALIZANTE', 'IN_RESERVA_PPI', 'IN_RESERVA_PUBLICA', 'IN_COMUM_MEDIO_INTEGRADO',
-                    'IN_ESGOTO_FOSSA_COMUM', 'IN_COZINHA', 'IN_DESPENSA', 'IN_ALMOXARIFADO', 'IN_BIBLIOTECA',
-                    'IN_PATIO_COBERTO', 'IN_SALA_PROFESSOR', 'IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
-                    'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
-                    'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM',
-                    'IN_TRATAMENTO_LIXO_INEXISTENTE', 'AEE_LIBRAS', 'AEE_BRAILLE', 'IN_EQUIP_IMPRESSORA_MULT']
+                    'IN_ESGOTO_FOSSA_COMUM','IN_ESGOTO_FOSSA',
+                    'IN_INTERNET', 'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
+                    'IN_BIBLIOTECA',
+                    #'IN_COZINHA', 'IN_DESPENSA','IN_ALMOXARIFADO','IN_BIBLIOTECA',
+                    #'IN_PATIO_COBERTO','IN_SALA_PROFESSOR','IN_ACESSIBILIDADE_PISOS_TATEIS', 'IN_INTERNET',
+                    #'IN_INTERNET_ADMINISTRATIVO', 'IN_INTERNET_APRENDIZAGEM',
+                    #'IN_TRATAMENTO_LIXO_SEPARACAO', 'IN_TRATAMENTO_LIXO_REUTILIZA', 'IN_TRATAMENTO_LIXO_RECICLAGEM','IN_TRATAMENTO_LIXO_INEXISTENTE',
+                    #'AEE_LIBRAS', 'AEE_BRAILLE',
+                    'IN_EQUIP_IMPRESSORA_MULT',
+                    'IN_COMUM_MEDIO_MEDIO',
+                    'EDUCACAO_INDIGENA', 'IN_EDUCACAO_INDIGENA',
+                    'IN_ORGAO_ASS_PAIS', 'IN_ORGAO_ASS_PAIS_MESTRES', 'IN_ORGAO_CONSELHO_ESCOLAR','IN_ORGAO_GREMIO_ESTUDANTIL', 'IN_ORGAO_OUTROS', 'IN_ORGAO_NENHUM'
+                    ]
 
-
-    df.drop(columns_drop,axis=1,inplace=True)
-    #data =  df['IN_BIBLIOTECA']
-    #print(data.describe())
-    #histogram_boxplot(data, bins = 30, title="Plot", xlabel="Valores")
-    #print("Detect missing values.")
-    #print(df.isna().sum() / len(df))
-
-    return  df
+    df.drop(columns_drop, axis=1, inplace=True)
+    return df
 
 def histogram_boxplot(data, xlabel = None, title = None, font_scale=2, figsize=(9,8), bins = None):
     """ Boxplot and histogram combined
@@ -140,28 +143,36 @@ def runAnaliseFactorial(dataset):
     # do pandas pd.DataFrame.from_records para convertê-lo em um dataframe
     factorLoadings = pd.DataFrame.from_records(fa.loadings_)
 
-    # Selecionar as linhas acima de 0.6 e abaixo -0.6
-    factorLoadings = factorLoadings[factorLoadings.gt(.6).any(axis=1) | factorLoadings.lt(-.6).any(axis=1)]
+    threshould = 0.55
+    drop_factos = [c for c in factorLoadings.columns if len(factorLoadings[abs(factorLoadings[c]) > threshould]) == 0]
+    factorLoadings.drop(drop_factos, axis=1, inplace=True)
+    # Selecionar as linhas acima de threshould e abaixo -threshould
+    factorLoadings = factorLoadings[factorLoadings.gt(threshould).any(axis=1) | factorLoadings.lt(-1*threshould).any(axis=1)]
 
     array = fa.transform(dataset_reduce)
+    factor0 = np.around(array[:, 0], 2)
+    dataset['Estrutura'] = factor0
 
-    factor1 = np.around(array[:, 0], 2)
-    dataset['Estrutura'] = factor1
+    factor1 = np.around(array[:, 1], 2)
+    dataset['PED'] = factor1
 
-    factor2 = np.around(array[:, 1], 2)
-    dataset['PED'] = factor2
+    factor2 = np.around(array[:, 2], 2)
+    dataset['LibrasBraile'] = factor2
 
-    factor3 = np.around(array[:, 4], 2)
-    dataset['LibrasBraile'] = factor3
+    factor3 = np.around(array[:, 3], 2)
+    dataset['TratamentoLixo'] = factor3
 
-    factor4 = np.around(array[:, 5], 2)
-    dataset['PNE'] = factor4
+    factor4 = np.around(array[:, 4], 2)
+    dataset['PCD'] = factor4
 
-    factor5 = np.around(array[:, 6], 2)
-    dataset['Acessibilidade'] = factor5
+    factor6 = np.around(array[:, 6], 2)
+    dataset['Internet'] = factor6
 
-    factor6 = np.around(array[:, 11], 2)
-    dataset['Transporte'] = factor6
+    factor8 = np.around(array[:, 8], 2)
+    dataset['Internet'] = factor8
+
+    factor10 = np.around(array[:, 10], 2)
+    dataset['Transporte'] = factor10
     dataset.to_csv('../Dataset/inep_saeb_merge_fatorial_2019.csv', sep='\t', encoding='utf-8',index=False)
 
     return dataset;
