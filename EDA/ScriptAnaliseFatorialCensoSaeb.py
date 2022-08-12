@@ -74,63 +74,75 @@ def getValue_upper_whisker_quarile(data):
     return upper_whisker,upper_quartile
 
 def checkFeasibility(dataset):
+
     columns_numeric = pd.DataFrame(dataset._get_numeric_data()).columns
     columns_categorical = list(pd.DataFrame(dataset.select_dtypes(['object'])).columns)
     columns_categorical.append('CO_ENTIDADE')
 
     print("Categorical Columns")
     print(columns_categorical)
+
+    #Remove Categorical Columns
     dataset_reduce = dataset.drop(columns=columns_categorical, axis=1)
     dataset_reduce = dataset_reduce.astype(float)
 
+    #Remove as colunas com linhas acima 10% NA
     result = dataset_reduce.isna().mean()
-
     dataset_reduce = dataset_reduce.loc[:, result < .1]
+
     #Remove colunas com valores iguais em todas as linhas
     nunique = dataset_reduce.nunique()
     cols_to_drop = nunique[nunique == 1].index
     dataset_reduce.drop(cols_to_drop, axis=1,inplace=True)
 
+    #Remove as columnas relacionadas a códigos
     columns = dataset_reduce.columns;
     filtered = filter(lambda name: name.find("CO_") != -1, columns);
     dataset_reduce.drop(filtered, axis=1, inplace=True)
 
     print("Dimensionality reduced from {} to {}.".format(dataset.shape, dataset_reduce.shape))
-    print((dataset_reduce.values < 0).any())
+
+    #Teste de Factorability
     chi_square_value, p_value = calculate_bartlett_sphericity(dataset_reduce)
     print(chi_square_value, p_value);
 
+    #Teste de Adequacidade dos dados
     kmo_all, kmo_model = calculate_kmo(dataset_reduce)
     print('kmo: ', kmo_model)
 
-    # Criamos objeto factor_analysis, sem rotação e usando 5 fatores (tentativamente)
-    #fa = FactorAnalyzer(40, rotation=None)
+    # # Criamos objeto factor_analysis, sem rotação e usando 5 fatores (tentativamente)
+    # fa = FactorAnalyzer(n_factors=40, rotation="promax")
+    #
+    # # Aplicamos o método fit (ajuste) desse objeto no dataframe
+    # fa.fit(dataset_reduce)
+    #
+    # # Depois desse ajuste podemos coletar os autovetores e autovalores
+    # ev, v = fa.get_eigenvalues()
+    # print('São ' + str(len(ev)) + ' autovalores:\n', ev)
+    #
+    # # Create scree plot using matplotlib
+    # plt.scatter(range(1, dataset_reduce.shape[1] + 1), ev)
+    # plt.plot(range(1, dataset_reduce.shape[1] + 1), ev)
+    # plt.title('Scree Plot')
+    # plt.xlabel('Factors')
+    # plt.ylabel('Eigenvalue')
+    # plt.grid()
+    # plt.axhline(y=1, c='k')
+    # plt.show()
 
-    # Aplicamos o método fit (ajuste) desse objeto no dataframe
-    #fa.fit(dataset_reduce)
+    #eigenvalues, _ = fa.get_eigenvalues()
+    # count eigenvalues > 1
+    #number_of_factors = sum(eigenvalues > 1)
+    #print('Numero de Fatores = {}'.format(number_of_factors))
 
-    # Depois desse ajuste podemos coletar os autovetores e autovalores
-    #ev, v = fa.get_eigenvalues()
-    #print('São ' + str(len(ev)) + ' autovalores:\n', ev)
-
-    # Create scree plot using matplotlib
-    #plt.scatter(range(1, dataset_reduce.shape[1] + 1), ev)
-    #plt.plot(range(1, dataset_reduce.shape[1] + 1), ev)
-    #plt.title('Scree Plot')
-    #plt.xlabel('Factors')
-    #plt.ylabel('Eigenvalue')
-    #plt.grid()
-    #plt.axhline(y=1, c='k')
-    #plt.show()
-
-    # 6 fatores
-    fa = FactorAnalyzer(12, rotation="varimax")
+    #Apos saber Numero de Fatores com eigenvalues > 1
+    fa = FactorAnalyzer(46, rotation="varimax")
 
     # o objeto tem o método fit para análise do dataframe
     fa.fit(dataset_reduce)
 
     # Desse extraimos as cargas fatoriais (factor loadings)
-    # Observe que fa.loadings_ é um numpy.array com shape (25,6). Usamos o método
+    # Observe que fa.loadings_ é um numpy.array com shape . Usamos o método
     # do pandas pd.DataFrame.from_records para convertê-lo em um dataframe
     factorLoadings = pd.DataFrame.from_records(fa.loadings_)
 
