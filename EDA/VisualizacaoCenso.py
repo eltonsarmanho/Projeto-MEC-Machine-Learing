@@ -166,7 +166,7 @@ def runAnaliseFactorial(dataset):
     dataset['PCD'] = factor4
 
     factor6 = np.around(array[:, 6], 2)
-    dataset['Internet'] = factor6
+    dataset['Acessibilidade'] = factor6
 
     factor8 = np.around(array[:, 8], 2)
     dataset['Internet'] = factor8
