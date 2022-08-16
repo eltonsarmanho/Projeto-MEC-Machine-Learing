@@ -1,4 +1,4 @@
-FROM python:3.10-slim as build
+FROM python:3.11-rc-slim as build
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends build-essential gcc
 
@@ -9,7 +9,7 @@ ENV PATH="/usr/app/venv/bin:$PATH"
 COPY docker/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-FROM python:3.10-slim@sha256:cf85cd32e60184a94d88a0103c289d09024abffaa77680d116d7cc837668ea15
+FROM python:3.11-rc-slim@sha256:9a89111ec446d25d96e3503bb85c0aa12a6addaca61e441b0d801606afa86760
 RUN groupadd -g 999 python && useradd -r -u 999 -g python python
 RUN mkdir /usr/app && chown python:python /usr/app
 WORKDIR /usr/app
