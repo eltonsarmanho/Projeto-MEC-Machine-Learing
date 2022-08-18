@@ -17,6 +17,20 @@ from django.contrib import admin
 from django.urls import path, include
 from prediction import views
 from rest_framework import routers
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Machine Learning API",
+        default_version='v1',
+        description="Teste"
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny],
+)
+
 
 router = routers.DefaultRouter()
 router.register('dimensoes', views.DimensaoViewSet, basename='dimensoes')
@@ -28,4 +42,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('processamento_from_json/', views.ProcessamentoFromJson.as_view()),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
