@@ -31,3 +31,31 @@ def get_respostas():
             resultado.append(result)
 
     return json.dumps(resultado)
+
+def get_municipios():
+    resultado = []
+    with connections['default'].cursor() as cursor:
+        consulta = '''
+            set search_path to devolutivas_apa;
+            SELECT *
+            FROM municipio
+                '''
+        cursor.execute(consulta)
+        for result in dictfetchall(cursor):
+            resultado.append(result)
+    return json.dumps(resultado)
+
+def get_dados_ia_apa():
+    resultado = []
+    with connections['default'].cursor() as cursor:
+        consulta = '''
+            set search_path to devolutivas_apa;
+            SELECT id, state, grade, task, created_at, ciclo, nome, turma, codigo_cidade, escola, cod_estado, id_coesao, level_coesao, description_coesao, probability_coesao,
+                id_ortografia, level_ortografia, description_ortografia, probability_ortografia, id_pontuacao, level_pontuacao, description_pontuacao, probability_pontuacao, id_segmentacao,
+                level_segmentacao, description_segmentacao, probability_segmentacao, id_tipologia, level_tipologia, description_topologia, probability_topologia, id_adequacao, level_adequacao,
+                description_adequacao, probability_adequacao                
+            FROM dados_ia_apa'''
+        cursor.execute(consulta)
+        for result in dictfetchall(cursor):
+            resultado.append(result)
+    return json.dumps(resultado, default=str)
