@@ -20,7 +20,7 @@ municipios = pd.read_json(get_municipios())
 # data_apa = pd.read_csv('/home/eltonss/Documents/MEC/data/dados_ia_apa.csv');
 data_apa = pd.read_json(get_dados_ia_apa());
 
-data_apa.head()
+data_apa.head();
 
 
 dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI',23:'CE',24:'RN',
@@ -29,17 +29,17 @@ dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI
 data_apa = data_apa.replace({'cod_estado': dict_uf});
 
 dict_municipio = {};
-for code in data_apa['codigo_cidade']:
+for code in set(data_apa['codigo_cidade']):
     for codigo,nome in zip(municipios.id_municipio,municipios.nome):
         if(str(code)==str(codigo)):
             dict_municipio[code] = nome;
-data_apa=data_apa.replace({'codigo_cidade': dict_municipio});
+data_apa=data_apa.replace({'codigo_cidade': dict_municipio})
 
 
 #Remover Duplicatas
 data_apa_duplicate = data_apa.drop_duplicates(subset=['nome','level_pontuacao','created_at']);
-result = data_apa_duplicate.groupby(['nome','level_pontuacao','created_at'],group_keys=True).apply(lambda x: x);
-print('Check duplicidade: ', result[['nome','level_pontuacao','created_at']].duplicated().any());
+#result = data_apa_duplicate.groupby(['nome','level_pontuacao','created_at'],group_keys=True).apply(lambda x: x);
+#print('Check duplicidade: ', result[['nome','level_pontuacao','created_at']].duplicated().any());
 
 NIVEL_ORTOGRAFICO = 'A: NÍVEL ORTOGRÁFICO';
 NIVEL_ALFABETICO = 'B: NÍVEL ALFABÉTICO';
