@@ -43,7 +43,7 @@ print('Check duplicidade: ', result[['nome','level_pontuacao','created_at']].dup
 
 NIVEL_ORTOGRAFICO = 'A: NÍVEL ORTOGRÁFICO';
 NIVEL_ALFABETICO = 'B: NÍVEL ALFABÉTICO';
-NIVEL_SILABICO = 'C: NÍVEL SILÁBICO';
+NIVEL_SILABICO = 'D: NÍVEL SILÁBICO';
 
 def graph_bar_pontuacao_uf():
     data_estado_pontuacao = data_apa_duplicate.groupby(['cod_estado', 'level_pontuacao']).agg({'level_pontuacao': ['count']}, split_out=4)
