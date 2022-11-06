@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.views.generic import TemplateView
 
 
 class DimensaoViewSet(viewsets.ModelViewSet):
@@ -183,3 +184,14 @@ class ProcessamentoFromJson(APIView):
             return Response(serializer.processar(), status=201)
 
         return Response(serializer.errors, status=400)
+
+class InitialView(TemplateView):
+    template_name = 'initial.html'
+    
+
+    def get_context_data(self, **kwargs):
+        context = super(InitialView, self).get_context_data(**kwargs)
+        from prediction.graphics import graph_bar_valor_por_pontuacao_segmentado
+        
+        context['graph_segmentado'] = graph_bar_valor_por_pontuacao_segmentado().to_html()
+        return context
