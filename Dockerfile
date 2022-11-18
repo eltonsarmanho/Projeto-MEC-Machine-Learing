@@ -31,9 +31,6 @@ RUN nginx
 USER python
 
 ENV PATH="/usr/app/venv/bin:$PATH"
-ENV PREDICTION_DB_USER=postgres
-ENV PREDICTION_DB_PASSWORD=ix]=h,Y4;a6uI4v\\
-ENV PREDICTION_DB_HOST=35.247.202.234
 
 RUN . ./venv/bin/activate
 RUN python manage.py collectstatic --no-input
