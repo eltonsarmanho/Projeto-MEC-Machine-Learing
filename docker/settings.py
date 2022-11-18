@@ -78,10 +78,18 @@ WSGI_APPLICATION = 'machinelearning.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'sqlite': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': config('PREDICTION_DB_NAME'),
+        'USER': config('PREDICTION_DB_USER'),
+        'PASSWORD': config('PREDICTION_DB_PASSWORD'),
+        'HOST': config('PREDICTION_DB_HOST'),
+        'PORT': config('PREDICTION_DB_PORT', '5432'),
+    }
 }
 
 
