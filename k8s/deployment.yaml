@@ -45,7 +45,7 @@ spec:
                 - mec-pool-stg-highmem
       containers:
       - name: apa-machine-learning
-        image: us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/apa-machine-learning:v0
+        image: {{image}}
         imagePullPolicy: IfNotPresent
         resources:
           requests:
