@@ -30,7 +30,7 @@ pipelines:
             name: Push Deployment manifest to K8S
             deployment: production
             script:
-              - 'sed  "s|{{image}}|us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/$BITBUCKET_REPO_SLUG:$BITBUCKET_COMMIT|g" k8s/deployment.yml > k8s/deployment.yml.tmp && mv k8s/deployment.yml.tmp k8s/deployment.yml'
+              - 'sed  "s|{{image}}|us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/$BITBUCKET_REPO_SLUG:$BITBUCKET_COMMIT|g" k8s/deployment.yaml > k8s/deployment.yaml.tmp && mv k8s/deployment.yaml.tmp k8s/deployment.yaml'
               - pipe: atlassian/google-gke-kubectl-run:2.2.0
                 variables:
                   KEY_FILE: $KEY_FILE
@@ -38,7 +38,7 @@ pipelines:
                   COMPUTE_ZONE: 'us-west1'
                   CLUSTER_NAME: 'mec-platform-stg'
                   KUBECTL_COMMAND: 'apply'
-                  RESOURCE_PATH: 'k8s/deployment.yml'
+                  RESOURCE_PATH: 'k8s/deployment.yaml'
       - step:
           name: Perform a Rollback to the latest working deployment
           trigger: manual
@@ -49,4 +49,4 @@ pipelines:
                 PROJECT: $GCLOUD_PROJECT
                 COMPUTE_ZONE: 'us-west1'
                 CLUSTER_NAME: 'mec-platform-stg'
-                KUBECTL_COMMAND: 'rollout undo deployment app-acesso-backend -n ted523'
+                KUBECTL_COMMAND: 'rollout undo deployment apa-machine-learning -n apa'
