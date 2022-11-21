@@ -1,0 +1,24 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/
+apiVersion: v1
+kind: Service
+metadata:
+  name: apa-machine-learning-service
+  namespace: apa
+  labels:
+    app: apa-machine-learning
+    tier: frontend
+    env: staging
+  annotations:
+    responsibleUser: "Giovani Maia"
+    repository: "https://bitbucket.org/plataforma-integrada/projeto-mec-machine-learing/src/main/"
+spec:
+  selector:
+    app: apa-machine-learning
+    tier: frontend
+    env: staging
+  type: ClusterIP
+  ports:
+  - name: apa-machine-learning-service
+    protocol: TCP
+    port: 80
+    targetPort: 5000

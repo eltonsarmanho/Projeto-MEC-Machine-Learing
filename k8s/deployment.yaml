@@ -1,0 +1,64 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apa-machine-learning
+  annotations:
+    responsibleUser: "Giovani Maia"
+    repository: "https://bitbucket.org/plataforma-integrada/projeto-mec-machine-learing/src/main/"
+  namespace: apa
+  labels:
+    app: apa-machine-learning
+    tier: frontend
+    env: staging
+spec:
+  selector:
+    matchLabels:
+      app: apa-machine-learning
+      tier: frontend
+      env: staging
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: apa-machine-learning
+        tier: frontend
+        env: staging
+    spec:
+      tolerations:
+      - key: workloadType
+        operator: Equal
+        value: untrusted
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node_pool
+                operator: In
+                values:
+                - mec-pool-stg-highmem
+      containers:
+      - name: apa-machine-learning
+        image: us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/apa-machine-learning:v0
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        envFrom:
+        - secretRef:
+            name: apa-machine-learning-secrets
+        ports:
+        - containerPort: 5000
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: artifact-registry
