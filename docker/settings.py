@@ -84,10 +84,10 @@ DATABASES = {
     },
     'default': {
         'ENGINE': 'django.db.backends.postgresql', 
-        'NAME': config('PREDICTION_DB_NAME'),
-        'USER': config('PREDICTION_DB_USER'),
-        'PASSWORD': config('PREDICTION_DB_PASSWORD'),
-        'HOST': config('PREDICTION_DB_HOST'),
+        'NAME': config('PREDICTION_DB_NAME', ''),
+        'USER': config('PREDICTION_DB_USER', ''),
+        'PASSWORD': config('PREDICTION_DB_PASSWORD', ''),
+        'HOST': config('PREDICTION_DB_HOST', ''),
         'PORT': config('PREDICTION_DB_PORT', '5432'),
     }
 }
