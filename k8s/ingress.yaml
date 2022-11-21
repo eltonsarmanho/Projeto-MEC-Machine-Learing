@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-apa-machine-learning
+  namespace: apa
+  labels:
+    app: apa-machine-learning
+    tier: frontend
+    env: staging
+  annotations:
+    responsibleUser: "Giovani Maia"
+    repository: "https://bitbucket.org/plataforma-integrada/projeto-mec-machine-learing/src/main/"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - plataforma-integrada-dev.nees.ufal.br
+      secretName: apa-ia-tls
+  rules:
+  - host: "plataforma-integrada-dev.nees.ufal.br"
+    http:
+      paths:
+      - path: /apa-machine-learning
+        pathType: Prefix
+        backend:
+          service:
+            name: apa-machine-learning-service
+            port:
+              number: 80
+      - path: /apa-machine-learning(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: apa-machine-learning-service
+            port:
+              number: 80
+
