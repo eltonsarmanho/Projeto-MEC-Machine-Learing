@@ -5,6 +5,10 @@
 
 image: python:3.8
 
+options:
+  docker: true
+  size: 2x
+
 pipelines:
   branches:
     homol:
