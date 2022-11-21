@@ -1,0 +1,52 @@
+#  Template python-build
+
+#  This template allows you to validate your python code.
+#  The workflow allows running tests and code linting on the default branch.
+
+image: python:3.8
+
+pipelines:
+  branches:
+    homol:
+      - step:
+            name: Build image and Push to Docker Artifact Registry
+            image: google/cloud-sdk:alpine
+            script:
+              - export ARTIFACT_REGISTRY=us-west1-docker.pkg.dev/$GCLOUD_PROJECT/ted-hub
+              - echo $GCLOUD_API_KEYFILE > ~/.gcloud-api-key.json
+              - gcloud auth activate-service-account --key-file ~/.gcloud-api-key.json
+              - gcloud config set project $GCLOUD_PROJECT
+              - gcloud artifacts repositories list
+              #Talvez precise executar o seguinte comando para ter permiss�o na zone: gcloud auth configure-docker us-central1- docker.pkg.dev. Note que, us-central1, deve ser igual a zone do seu artifact registry
+              - gcloud auth configure-docker us-west1-docker.pkg.dev --quiet
+              - docker build . -t us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/$BITBUCKET_REPO_SLUG:$BITBUCKET_COMMIT
+              - docker push us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/$BITBUCKET_REPO_SLUG:$BITBUCKET_COMMIT
+            services:
+              - docker
+            caches:
+              - docker
+      - parallel:
+        - step:
+            name: Push Deployment manifest to K8S
+            deployment: production
+            script:
+              - 'sed  "s|{{image}}|us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/$BITBUCKET_REPO_SLUG:$BITBUCKET_COMMIT|g" k8s/deployment.yml > k8s/deployment.yml.tmp && mv k8s/deployment.yml.tmp k8s/deployment.yml'
+              - pipe: atlassian/google-gke-kubectl-run:2.2.0
+                variables:
+                  KEY_FILE: $KEY_FILE
+                  PROJECT: $GCLOUD_PROJECT
+                  COMPUTE_ZONE: 'us-west1'
+                  CLUSTER_NAME: 'mec-platform-stg'
+                  KUBECTL_COMMAND: 'apply'
+                  RESOURCE_PATH: 'k8s/deployment.yml'
+      - step:
+          name: Perform a Rollback to the latest working deployment
+          trigger: manual
+          script:
+            - pipe: atlassian/google-gke-kubectl-run:2.2.0
+              variables:
+                KEY_FILE: $KEY_FILE
+                PROJECT: $GCLOUD_PROJECT
+                COMPUTE_ZONE: 'us-west1'
+                CLUSTER_NAME: 'mec-platform-stg'
+                KUBECTL_COMMAND: 'rollout undo deployment app-acesso-backend -n ted523'
