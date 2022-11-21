@@ -23,6 +23,7 @@ pipelines:
               - docker push us-west1-docker.pkg.dev/teds-10698-10523-10974/ted-hub/$BITBUCKET_REPO_SLUG:$BITBUCKET_COMMIT
             services:
               - docker
+            size: 2x
             caches:
               - docker
       - parallel:
@@ -50,3 +51,7 @@ pipelines:
                 COMPUTE_ZONE: 'us-west1'
                 CLUSTER_NAME: 'mec-platform-stg'
                 KUBECTL_COMMAND: 'rollout undo deployment apa-machine-learning -n apa'
+definitions:
+  services:
+    docker:
+      memory: 4096
