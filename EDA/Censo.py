@@ -9,6 +9,7 @@ pd.set_option("display.max.columns", None)
 import sys
 import matplotlib.pyplot as plt
 
+#teste
 def rows(f, chunksize=1024, sep='\n'):
     row = ''
     while (chunk := f.read(chunksize)) != '':  # final do arquivo
