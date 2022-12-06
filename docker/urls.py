@@ -41,13 +41,13 @@ router.register('dimensoes_est', views.DimensaoESTViewSet, basename='dimensoes_e
 router.register('fatore_est', views.FatorESTViewSet, basename='fatores_est')
 
 urlpatterns = [
-    path('apa-machine-learning/admin/', admin.site.urls),
-    path('apa-machine-learning/api/', include(router.urls)),
-    path('apa-machine-learning/processamento_from_json/', views.ProcessamentoFromJson.as_view()),
-    path('apa-machine-learning/', views.InitialView.as_view(), name='home'),
-    path('apa-machine-learning/sapdimensoes/', views.SapDimensoesView.as_view(), name='sapdimensoes'),
-    path('apa-machine-learning/sapfatores/', views.SapFatoresView.as_view(), name='sapfatores'),
+    path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
+    path('processamento_from_json/', views.ProcessamentoFromJson.as_view()),
+    path('', views.InitialView.as_view(), name='home'),
+    path('sapdimensoes/', views.SapDimensoesView.as_view(), name='sapdimensoes'),
+    path('sapfatores/', views.SapFatoresView.as_view(), name='sapfatores'),
 
-    path('apa-machine-learning/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('apa-machine-learning/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
