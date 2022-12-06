@@ -48,8 +48,6 @@ class FatorESTViewSet(viewsets.ModelViewSet):
         return FatorEST.objects.all()
 
 
-
-
 class ProcessamentoFromJson(APIView):
     request_schema_dict = openapi.Schema(
         type=openapi.TYPE_OBJECT,
@@ -185,6 +183,7 @@ class ProcessamentoFromJson(APIView):
 
         return Response(serializer.errors, status=400)
 
+
 class InitialView(TemplateView):
     template_name = 'initial.html'
     
@@ -193,5 +192,39 @@ class InitialView(TemplateView):
         context = super(InitialView, self).get_context_data(**kwargs)
         from prediction.graphics import graph_bar_valor_por_pontuacao_segmentado
         
+        context['titulo'] = 'Dashboard'
         context['graph_segmentado'] = graph_bar_valor_por_pontuacao_segmentado().to_html()
+        return context
+
+
+class SapDimensoesView(TemplateView):
+    template_name = 'initial.html'
+
+
+    def get_context_data(self, **kwargs):
+        context = super(SapDimensoesView, self).get_context_data(**kwargs)
+        from prediction.graphics import grafico_risco_escola_dimensoes_barras
+        from prediction.graphics import grafico_risco_escola_dimensoes_barras2
+        from prediction.graphics import grafico_radar_sap
+
+        context['titulo'] = 'SAP Dimensoes'
+        context['graph'] = grafico_risco_escola_dimensoes_barras().to_html()
+        context['graph2'] = grafico_risco_escola_dimensoes_barras2().to_html()
+        context['graph3'] = grafico_radar_sap().to_html()
+
+        return context
+
+class SapFatoresView(TemplateView):
+    template_name = 'initial.html'
+
+
+    def get_context_data(self, **kwargs):
+        context = super(SapFatoresView, self).get_context_data(**kwargs)
+        from prediction.graphics import grafico_risco_escola_fatores_barras
+        from prediction.graphics import grafico_risco_escola_fatores_barras2
+
+        context['titulo'] = 'SAP Fatores'
+        context['graph'] = grafico_risco_escola_fatores_barras().to_html()
+        context['graph2'] = grafico_risco_escola_fatores_barras2().to_html()
+
         return context
