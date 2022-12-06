@@ -1,16 +1,12 @@
-# Run this app with `python app.py` and
-# visit http://127.0.0.1:8050/ in your web browser.
-
-import pandas as pd;
-import numpy as np;
-import scipy.stats as st;
-import plotly.express as px;
-import plotly.graph_objects as go;
-import psycopg2
+import pandas as pd
+import numpy as np
+import scipy.stats as st
 import plotly.express as px
+import plotly.graph_objects as go
+import psycopg2
 import random
 
-from plotly.subplots import make_subplots;
+from plotly.subplots import make_subplots
 
 from prediction.conecta import get_municipios, get_dados_ia_apa
 

@@ -44,9 +44,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('processamento_from_json/', views.ProcessamentoFromJson.as_view()),
-    path('', views.InitialView.as_view()),
-    path('sapdimensoes/', views.SapDimensoesView.as_view()),
-    path('sapfatores/', views.SapFatoresView.as_view()),
+    path('', views.InitialView.as_view(), name='home'),
+    path('sapdimensoes/', views.SapDimensoesView.as_view(), name='sapdimensoes'),
+    path('sapfatores/', views.SapFatoresView.as_view(), name='sapfatores'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
