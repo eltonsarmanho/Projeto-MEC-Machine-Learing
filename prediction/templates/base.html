@@ -30,19 +30,19 @@
                     <div class="position-sticky pt-3 sidebar-sticky">
                         <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link {% if titulo == 'Dashboard' %} active {% endif %}" aria-current="page" href="/">
+                                <a class="nav-link {% if titulo == 'Dashboard' %} active {% endif %}" aria-current="page" href="{% url 'home' %}">
                                     <span data-feather="home" class="align-text-bottom"></span>
                                     Dashboard
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {% if titulo == 'SAP Dimensoes' %} active {% endif %}" href="/sapdimensoes/">
+                                <a class="nav-link {% if titulo == 'SAP Dimensoes' %} active {% endif %}" href="{% url 'sapdimensoes' %}">
                                     <span data-feather="sapdimensoes" class="align-text-bottom"></span>
                                     SAP Dimensoes
                                 </a>
                             </li>
                             <li class="nav-item" href="/sapfatores/">
-                                <a class="nav-link {% if titulo == 'SAP Fatores' %} active {% endif %}" href="/sapfatores/">
+                                <a class="nav-link {% if titulo == 'SAP Fatores' %} active {% endif %}" href="{% url 'sapfatores' %}">
                                     <span data-feather="sapfatores" class="align-text-bottom"></span>
                                     SAP Fatores
                                 </a>

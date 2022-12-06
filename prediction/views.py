@@ -193,7 +193,7 @@ class InitialView(TemplateView):
         from prediction.graphics import graph_bar_valor_por_pontuacao_segmentado
         
         context['titulo'] = 'Dashboard'
-        context['graph_segmentado'] = graph_bar_valor_por_pontuacao_segmentado().to_html()
+        context['graph'] = graph_bar_valor_por_pontuacao_segmentado().to_html()
         return context
 
 
