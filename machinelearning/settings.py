@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-w2)@8uzek8qz=)k^4^vcgwto0ul8!%xk^vy&=lv^gqgs-=gi$b')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False)
+DEBUG = config('DEBUG', default=True)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', '*').split(',')
 
@@ -84,21 +84,21 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     },
     'datasource': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': config('DATASOURCE_DB_NAME'),
-        'USER': config('DATASOURCE_DB_USER'),
-        'PASSWORD': config('DATASOURCE_DB_PASSWORD'),
-        'HOST': config('DATASOURCE_DB_HOST'),
-        'PORT': config('DATASOUCE_DB_PORT', '3306'),
+        'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': 'dw',
+        'USER': 'consulta',
+        'PASSWORD': 'teste123',
+        'HOST': '35.247.202.234',
+        'PORT': '5432',
     },
     'default': {
-        'ENGINE': 'django.db.backends.postgresql', 
-        'NAME': config('PREDICTION_DB_NAME'),
-        'USER': config('PREDICTION_DB_USER'),
-        'PASSWORD': config('PREDICTION_DB_PASSWORD'),
-        'HOST': config('PREDICTION_DB_HOST'),
-        'PORT': config('PREDICTION_DB_PORT', '5432'),
-        'SCHEMA': config('PREDICTION_DB_SCHEMA', ''),
+		'ENGINE': 'django.db.backends.postgresql', 
+        'NAME': 'dw',
+        'USER': 'consulta',
+        'PASSWORD': 'teste123',
+        'HOST': '35.247.202.234',
+        'PORT': '5432',
+		
     }
 }
 
