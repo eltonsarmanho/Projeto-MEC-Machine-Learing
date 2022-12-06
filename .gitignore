@@ -4,5 +4,4 @@ db.sqlite3
 venv
 /static/
 machinelearning/settings.py
-machinelearning/settings.py
-machinelearning/settings.py
+
