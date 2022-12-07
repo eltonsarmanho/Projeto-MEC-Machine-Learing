@@ -59,3 +59,22 @@ def get_dados_ia_apa():
         for result in dictfetchall(cursor):
             resultado.append(result)
     return json.dumps(resultado, default=str)
+
+def get_apa_ciclo():
+    resultado = []
+    with connections['default'].cursor() as cursor:
+        consulta = '''
+            select count(distinct a.arquivos_separados), c.nome
+                    from digitalizacoes_firebase.avaliacao a
+                    left join digitalizacoes_firebase.ciclo c 
+                    on a.ciclo_id = c.id 
+                    where 1=1
+                    and a.arquivos is not null
+                    and c.id <> 'KIlqTBMSWL1Qi0wmIjJr'
+                    group by rollup(2)
+                    order by 1 desc
+                '''
+        cursor.execute(consulta)
+        for result in dictfetchall(cursor):
+            resultado.append(result)
+    return json.dumps(resultado)

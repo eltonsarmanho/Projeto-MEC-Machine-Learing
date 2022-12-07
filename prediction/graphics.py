@@ -9,7 +9,7 @@ from decouple import config
 
 from plotly.subplots import make_subplots
 
-from prediction.conecta import get_municipios, get_dados_ia_apa
+from prediction.conecta import get_municipios, get_dados_ia_apa, get_apa_ciclo
 
 from django.core.management import call_command
 
@@ -785,17 +785,7 @@ def texto_apa_quant_est_esc():
 
 def table_apa_ciclo():
     #quantidade de digitalizações por ciclo:
-    query = """select count(distinct a.arquivos_separados), c.nome
-                    from digitalizacoes_firebase.avaliacao a
-                    left join digitalizacoes_firebase.ciclo c 
-                    on a.ciclo_id = c.id 
-                    where 1=1
-                    and a.arquivos is not null
-                    and c.id <> 'KIlqTBMSWL1Qi0wmIjJr'
-                    group by rollup(2)
-                    order by 1 desc
-                    ;"""
-    df = pd.read_sql(query,con_db_caio())
+    df = pd.read_json(get_apa_ciclo());
     df.columns = ['Quant. de Digitalizações', 'Ciclo']
     return df
 
