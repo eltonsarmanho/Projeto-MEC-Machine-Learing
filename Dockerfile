@@ -24,6 +24,7 @@ COPY --chown=python:python machinelearning/* ./machinelearning/
 COPY --chown=python:python prediction/ ./prediction/
 COPY --chown=python:python machinelearning/ ./machinelearning/
 COPY --chown=python:python docker/settings.py machinelearning/settings.py
+COPY --chown=python:python docker/urls.py machinelearning/urls.py
 
 COPY --chown=python:python docker/nginx.txt /etc/nginx/sites-available/default
 RUN nginx
