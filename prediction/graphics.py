@@ -249,7 +249,7 @@ def graph_test():
 
 
 def con_db_caio():
-    conn = psycopg2.connect(host=config('DATASOURCE_DB_HOST', ''), database=config('DATASOURCE_DB_NAME', ''), user=config('DATASOURCE_DB_USER', ''), password=config('DATASOURCE_DB_PASSWORD', ''))
+    conn = psycopg2.connect(host=config('PREDICTION_DB_HOST', ''), database=config('PREDICTION_DB_NAME', ''), user=config('PREDICTION_DB_USER', ''), password=config('PREDICTION_DB_PASSWORD', ''))
     return conn
 
 
@@ -803,8 +803,8 @@ def table_apa_ciclo():
 
 
 def con_db_caio2(query):
-    conn = psycopg2.connect(host=config('DATASOURCE_DB_HOST', ''), database=config('DATASOURCE_DB_NAME', ''),
-        user=config('DATASOURCE_DB_USER', ''), password=config('DATASOURCE_DB_PASSWORD', ''))
+    conn = psycopg2.connect(host=config('PREDICTION_DB_HOST', ''), database=config('PREDICTION_DB_NAME', ''),
+        user=config('PREDICTION_DB_USER', ''), password=config('PREDICTION_DB_PASSWORD', ''))
     cursor = conn.cursor()
     conn.autocommit = True
     cursor.execute(query)
