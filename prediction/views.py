@@ -229,12 +229,12 @@ class SapFatoresView(TemplateView):
 
         return context
 
-class TesteView(TemplateView):
+class GeralView(TemplateView):
     template_name = 'initial.html'
 
 
     def get_context_data(self, **kwargs):
-        context = super(TesteView, self).get_context_data(**kwargs)
+        context = super(GeralView, self).get_context_data(**kwargs)
         from prediction.graphics import texto_sap_quant_est_esc
         from prediction.graphics import texto_apa_quant_est_esc
         from prediction.graphics import table_apa_ciclo
