@@ -47,6 +47,7 @@ urlpatterns = [
     path('', views.InitialView.as_view(), name='home'),
     path('sapdimensoes/', views.SapDimensoesView.as_view(), name='sapdimensoes'),
     path('sapfatores/', views.SapFatoresView.as_view(), name='sapfatores'),
+    path('teste/', views.TesteView.as_view(), name='teste'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

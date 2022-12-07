@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import psycopg2
 import random
+from decouple import config
 
 from plotly.subplots import make_subplots
 
@@ -248,7 +249,7 @@ def graph_test():
 
 
 def con_db_caio():
-    conn = psycopg2.connect(host="35.247.202.234", database="dw", user="consulta", password="teste123")
+    conn = psycopg2.connect(host=config('DATASOURCE_DB_HOST', ''), database=config('DATASOURCE_DB_NAME', ''), user=config('DATASOURCE_DB_USER', ''), password=config('DATASOURCE_DB_PASSWORD', ''))
     return conn
 
 
@@ -757,3 +758,57 @@ def grafico_radar_sap():
     )
 
     return fig
+
+def texto_sap_quant_est_esc():
+    query = """SELECT count(DISTINCT aluno) FROM dados_sap.dimensoes_alunos"""
+    row = con_db_caio2(query)
+    texto = 'Atualmente existem ' +  str(row[0]) +  ' estudantes diferentes cadastrados no SAP '
+    query = """SELECT count(DISTINCT aluno) FROM dados_sap.fatores_escola"""
+    row = con_db_caio2(query)
+    texto = texto + 'de ' +  str(row[0]) +  ' escolas diferentes.'
+    return texto
+
+def texto_apa_quant_est_esc():
+    query = """select count(distinct a.aluno_id) qtd, coalesce(c.nome,'Total') as ciclo 
+                from digitalizacoes_firebase.avaliacao a
+                left join digitalizacoes_firebase.ciclo c 
+                on a.ciclo_id = c.id 
+                where 1=1
+                and a.arquivos is not null
+                and c.id <> 'KIlqTBMSWL1Qi0wmIjJr'
+                group by rollup(2)
+                order by 1 desc
+                ;"""
+    row = con_db_caio2(query)
+    texto = 'Atualmente existem ' +  str(row[0]) +  ' estudantes distintos que digitalizaram no APA.'
+    return texto
+
+def table_apa_ciclo():
+    #quantidade de digitalizações por ciclo:
+    query = """select count(distinct a.arquivos_separados), c.nome
+                    from digitalizacoes_firebase.avaliacao a
+                    left join digitalizacoes_firebase.ciclo c 
+                    on a.ciclo_id = c.id 
+                    where 1=1
+                    and a.arquivos is not null
+                    and c.id <> 'KIlqTBMSWL1Qi0wmIjJr'
+                    group by rollup(2)
+                    order by 1 desc
+                    ;"""
+    df = pd.read_sql(query,con_db_caio())
+    df.columns = ['Quant. de Digitalizações', 'Ciclo']
+    return df
+
+
+
+
+def con_db_caio2(query):
+    conn = psycopg2.connect(host=config('DATASOURCE_DB_HOST', ''), database=config('DATASOURCE_DB_NAME', ''),
+        user=config('DATASOURCE_DB_USER', ''), password=config('DATASOURCE_DB_PASSWORD', ''))
+    cursor = conn.cursor()
+    conn.autocommit = True
+    cursor.execute(query)
+    result = cursor.fetchone()
+    
+    return result
+
