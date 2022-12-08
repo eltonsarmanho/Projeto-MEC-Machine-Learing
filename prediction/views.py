@@ -236,22 +236,22 @@ class GeralView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(GeralView, self).get_context_data(**kwargs)
-        from prediction.graphics import texto_sap_quant_est_esc
-        from prediction.graphics import texto_apa_quant_est_esc
-        from prediction.graphics import table_apa_ciclo
-        from prediction.graphics import media_dimensoes
-        import time
+        #from prediction.graphics import texto_sap_quant_est_esc
+        #from prediction.graphics import texto_apa_quant_est_esc
+        #from prediction.graphics import table_apa_ciclo
+        #from prediction.graphics import media_dimensoes
+        #import time
         
-        inicio = time.time()
+        #inicio = time.time()
 
         context['titulo'] = 'Visão geral dos sistemas atuais'
-        context['text1'] = texto_sap_quant_est_esc()
-        context['text2'] = texto_apa_quant_est_esc()
+        #context['text1'] = texto_sap_quant_est_esc()
+        #context['text2'] = texto_apa_quant_est_esc()
 
-        context['table1'] = table_apa_ciclo().to_html()
-        context['table2'] = media_dimensoes().to_html()
-        fim = time.time()
-        print(fim - inicio)
+        #context['table1'] = table_apa_ciclo().to_html()
+        #context['table2'] = media_dimensoes().to_html()
+        #fim = time.time()
+        #print(fim - inicio)
         return context
 
 class VeloFatoresView(TemplateView):
