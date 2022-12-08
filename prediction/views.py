@@ -249,7 +249,7 @@ class GeralView(TemplateView):
         context['text2'] = texto_apa_quant_est_esc()
 
         context['table1'] = table_apa_ciclo().to_html()
-        #context['table2'] = media_dimensoes().to_html()
+        context['table2'] = media_dimensoes().to_html()
         fim = time.time()
         print(fim - inicio)
         return context
