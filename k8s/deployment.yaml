@@ -46,7 +46,7 @@ spec:
       containers:
       - name: apa-machine-learning
         image: {{image}}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         resources:
           requests:
             cpu: 2
