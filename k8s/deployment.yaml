@@ -49,11 +49,11 @@ spec:
         imagePullPolicy: Always
         resources:
           requests:
-            cpu: 2
-            memory: 2Gi
+            cpu: 200m
+            memory: 256Mi
           limits:
-            cpu: 4
-            memory: 8Gi
+            cpu: 1000m
+            memory: 1Gi
         envFrom:
         - secretRef:
             name: apa-machine-learning-secrets
