@@ -11,7 +11,7 @@ options:
 
 pipelines:
   branches:
-    homol:
+    main:
       - step:
             name: Build image and Push to Docker Artifact Registry
             image: google/cloud-sdk:alpine
