@@ -192,6 +192,7 @@ class InitialView(TemplateView):
         context = super(InitialView, self).get_context_data(**kwargs)
         from prediction.graphics import graph_bar_valor_por_pontuacao_segmentado
         
+        
         context['titulo'] = 'Dashboard'
         context['graph'] = graph_bar_valor_por_pontuacao_segmentado().to_html()
         return context
@@ -239,7 +240,7 @@ class GeralView(TemplateView):
         #from prediction.graphics import texto_apa_quant_est_esc
         from prediction.graphics import table_apa_ciclo
 
-        context['titulo'] = 'Visão geral dos sistemas atuais'
+        context['titulo'] = 'Geral'
         #context['text1'] = texto_sap_quant_est_esc()
         #context['text2'] = texto_apa_quant_est_esc()
         context['table1'] = table_apa_ciclo().to_html()
@@ -254,9 +255,21 @@ class VeloFatoresView(TemplateView):
         context = super(VeloFatoresView, self).get_context_data(**kwargs)
         from prediction.graphics import velocimetro_fator
 
-        context['titulo'] = 'Visão geral dos sistemas atuais'
+        context['titulo'] = 'SAP F Velocimetro'
         #context['text1'] = texto_sap_quant_est_esc()
         #context['text2'] = texto_apa_quant_est_esc()
         context['graph'] = velocimetro_fator().to_html()
+
+        return context
+
+class VeloDimensoesView(TemplateView):
+    template_name = 'initial.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(VeloDimensoesView, self).get_context_data(**kwargs)
+        from prediction.graphics import velocimetro_dimensao
+
+        context['titulo'] = 'SAP D Velocimetro'
+        context['graph'] = velocimetro_dimensao().to_html()
 
         return context

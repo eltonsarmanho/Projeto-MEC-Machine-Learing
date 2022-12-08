@@ -50,6 +50,7 @@ urlpatterns = [
     path('sapfatores/', views.SapFatoresView.as_view(), name='sapfatores'),
     path('geral/', views.GeralView.as_view(), name='geral'),
     path('velofatores/', views.VeloFatoresView.as_view(), name='velofatores'),
+    path('velodimensoes/', views.VeloDimensoesView.as_view(), name='velodimensoes'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
