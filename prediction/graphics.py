@@ -935,4 +935,121 @@ def velocimetro_fator():
     fig.update_layout(height=1400, width=1200, title_text="Fatores Escola Dalila Leão")
     #fig.show()
     return fig
+
+
+def velocimetro_dimensao():
+    # dataframe para os indices fatores medio baixo e medio alto
+    d = {'Dimensao': ['E-ESC', 'E-PROF', 'E-FAM', 'E-COM', 'E-EST'],
+         'Medio_Baixo': [2.84, 2.67, 3.34, 2.45, 2.44],
+         'Medio_Alto': [4, 3.66, 4.33, 3.55, 3.41]}
+    dimensoes = pd.DataFrame(data=d)
+    query = """select * from public.dimensoes_est de
+    inner join escolas.aluno a 
+    on de.id_aluno = a.id_aluno 
+    inner join escolas.turma t 
+    on a.id_turma = t.id_turma 
+    inner join escolas.escola e 
+    on t.id_escola = e.cod_escola"""
+    # df = pd.read_sql(con_db_caio2(query))
+    df = pd.read_sql(query, con_db_caio())
+
+    df = df.loc[:, ~df.columns.duplicated()].copy()
+
+    cross_tab_prop = df[
+        ['id_aluno', 'nome_aluno', 'id_turma', 'escola', 'uf', 'municipio', 'cod_escola', 'nome_turma',
+         'E_ESCV', 'E_PROFV', 'E_FAMV', 'E_COMV', 'E_ESTV',
+         'E_ESCC', 'E_PROFC', 'E_FAMC', 'E_COMC', 'E_ESTC', ]]
+
+    cross_tab_prop.set_index('id_aluno')
+    # cross_tab_prop
+
+    nomeEscola = 'E M E F PROFESSORA DALILA LEAO'
+    filter = cross_tab_prop['escola'] == nomeEscola
+    escola_dimensao = cross_tab_prop[filter]
+
+
+    # filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064)
+    # turma_dimensao = cross_tab_prop[filter]
+
+
+    # filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
+    # aluno_dimensao = cross_tab_prop[filter]
+
+
+    cols = escola_dimensao.loc[:, escola_dimensao.columns.str.startswith("E_")]
+    cols = cols.loc[:, cols.columns.str.endswith("V")]
+    r = 1
+    c = 1
+    n = 1
+    tracer = {}
+
+    for (columnName, columnData) in cols.iteritems():
+        cols[columnName] = cols[columnName].astype(np.float16)
+        mean = cols[columnName].mean()
+        # print(mean)
+        # print('Column Contents : ', columnData.values)
+        # print('Column Name : ', columnName)
+        nameC = columnName
+        nameC = nameC.replace('V', "")
+        # print('Column Name whitout C : ', nameC.replace('_', "-"))
+        f2 = dimensoes[dimensoes['Dimensao'] == nameC.replace('_', "-")]
+        # print(f2)
+        columnName = nameC.replace('_', "-")
+        tracer[n] = go.Indicator(
+            mode="gauge+number+delta",
+            value=mean,
+            domain={'x': [0, 1], 'y': [0, 1]},
+            title={'text': columnName, 'font': {'size': 24}},
+            # reference é pode ser a média geral
+            delta={'reference': f2['Medio_Baixo'].values[0], 'increasing': {'color': "RebeccaPurple"}},
+            gauge={
+                'axis': {'range': [None, 7], 'tickwidth': 1, 'tickcolor': "darkblue"},
+                'bar': {'color': "darkblue"},
+                'bgcolor': "red",
+                'borderwidth': 2,
+                'bordercolor': "gray",
+                'steps': [
+                    {'range': [0, f2['Medio_Baixo'].values[0]], 'color': 'green'},
+                    {'range': [f2['Medio_Baixo'].values[0], f2['Medio_Alto'].values[0]], 'color': 'yellow'},
+                    {'range': [f2['Medio_Alto'].values[0], 7], 'color': 'red'}
+
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': 490}})
+        r = 1
+        c = 1
+        n = n + 1
+
+    fig = make_subplots(
+        rows=4,
+        cols=3,
+        specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+               [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+               [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+               [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+
+               ],
+    )
+    for i in range(1, 6):
+        if (c % 3 != 0):
+            # fig.append_trace(trace1, row=1, col=1)
+            # fig.append_trace(trace, row=r, col=c)
+            # r = r + 1
+            # print ('if, r: ', r, ' C: ', c)
+            fig.append_trace(tracer[i], row=r, col=c)
+            c = c + 1
+
+        else:
+            # print ('else, r: ', r, ' C: ', c)
+            fig.append_trace(tracer[i], row=r, col=c)
+            c = 1
+            r = r + 1
+
+            # fig.append_trace(trace, row=r, col=c)
+
+    fig.update_layout(height=800, width=800, title_text="Dimensoes da {0}".format(nomeEscola))
+    # fig.show()
+    return fig
         
