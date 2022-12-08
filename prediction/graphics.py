@@ -11,7 +11,7 @@ from decouple import config
 
 from plotly.subplots import make_subplots
 
-from prediction.conecta import get_municipios, get_dados_ia_apa, get_apa_ciclo, get_apa_ciclo2
+from prediction.conecta import *
 
 from django.core.management import call_command
 
@@ -1053,3 +1053,10 @@ def velocimetro_dimensao():
     # fig.show()
     return fig
         
+def media_dimensoes():
+    #quantidade de digitalizações por ciclo:
+    df = pd.read_json(get_dimensoes_geral());
+    df = df.groupby(['fatores_dimensões']).mean()
+    df = df.reset_index()
+    df.columns = ['Dimensão', 'Média Geral']
+    return df

@@ -79,6 +79,17 @@ def get_apa_ciclo():
             resultado.append(result)
     return json.dumps(resultado)
 
+def get_dimensoes_geral():
+    resultado = []
+    with connections['default'].cursor() as cursor:
+        consulta = '''
+            SELECT * FROM dados_sap.dimensoes_alunos
+                '''
+        cursor.execute(consulta)
+        for result in dictfetchall(cursor):
+            resultado.append(result)
+    return json.dumps(resultado)
+
 def get_apa_ciclo2():
     data = {'product_name': ['laptop', 'printer', 'tablet', 'desk', 'chair'],
         'price': [1200, 150, 300, 450, 200]
