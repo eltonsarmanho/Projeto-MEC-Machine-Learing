@@ -239,7 +239,7 @@ class GeralView(TemplateView):
         from prediction.graphics import texto_sap_quant_est_esc
         from prediction.graphics import texto_apa_quant_est_esc
         #from prediction.graphics import table_apa_ciclo
-        #from prediction.graphics import media_dimensoes
+        from prediction.graphics import media_dimensoes
         #import time
         
         #inicio = time.time()
@@ -249,7 +249,7 @@ class GeralView(TemplateView):
         context['text2'] = texto_apa_quant_est_esc()
 
         #context['table1'] = table_apa_ciclo().to_html()
-        #context['table2'] = media_dimensoes().to_html()
+        context['table2'] = media_dimensoes().to_html()
         #fim = time.time()
         #print(fim - inicio)
         return context
