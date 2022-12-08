@@ -39,7 +39,7 @@ router.register('dimensoes', views.DimensaoViewSet, basename='dimensoes')
 router.register('fatores', views.FatorViewSet, basename='fatores')
 router.register('dimensoes_est', views.DimensaoESTViewSet, basename='dimensoes_est')
 router.register('fatore_est', views.FatorESTViewSet, basename='fatores_est')
-router.register('velof', views.VeloFatoresView, basename='velof')
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
