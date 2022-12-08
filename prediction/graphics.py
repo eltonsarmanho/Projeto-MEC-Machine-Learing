@@ -7,6 +7,8 @@ import psycopg2
 import random
 from decouple import config
 
+
+
 from plotly.subplots import make_subplots
 
 from prediction.conecta import get_municipios, get_dados_ia_apa, get_apa_ciclo, get_apa_ciclo2
@@ -802,3 +804,163 @@ def con_db_caio2(query):
     
     return result
 
+def velocimetro_fator():
+    #dataframe para os indices fatores medio baixo e medio alto
+    d = {'Fator': ['E_ESC1', 'E_ESC2', 'E_PROF1', 'E_PROF2', 'E_FAM1', 'E_FAM2', 'E_COM1', 'E_COM2', 'E_COM3', 'E_EST1',
+               'E_EST2', 'E_EST3'], 'Medio_Baixo': [3.66, 2.01, 2.34, 2.34, 3.01, 3.34, 2.01, 2.01, 2.01, 2.01, 2.34, 2.01], 
+     'Medio_Alto': [5.33, 3.33, 4.33, 4.00, 5.00, 5.00, 3.66, 3.66, 3.66, 4.00, 4.00, 3.33]}
+    fatores = pd.DataFrame(data = d)
+    query = """select * from public.fatores_est fe
+    inner join escolas.aluno a 
+    on fe.id_aluno = a.id_aluno 
+    inner join escolas.turma t 
+    on a.id_turma = t.id_turma 
+    inner join escolas.escola e 
+    on t.id_escola = e.cod_escola"""
+    #df = pd.read_sql(con_db_caio2(query))
+    df = pd.read_sql(query, con_db_caio())
+
+    df = df.loc[:,~df.columns.duplicated()].copy()
+    
+    cross_tab_prop = df[['id_aluno','nome_aluno','id_turma', 'escola', 'uf', 'municipio','cod_escola','nome_turma','E_ESC1V', 'E_ESC2V', 'E_PROF1V', 'E_PROF2V',
+       'E_FAM1V', 'E_FAM2V', 'E_COM1V', 'E_COM2V', 'E_COM3V', 'E_EST1V',
+       'E_EST2V', 'E_EST3V', 'E_ESC1C', 'E_ESC2C', 'E_PROF1C', 'E_PROF2C',
+       'E_FAM1C', 'E_FAM2C', 'E_COM1C', 'E_COM2C', 'E_COM3C', 'E_EST1C',
+       'E_EST2C', 'E_EST3C']]
+
+    cross_tab_prop.set_index('id_aluno')
+    #cross_tab_prop
+    
+    filter_column = cross_tab_prop.columns.str.startswith("E_") | cross_tab_prop.columns.str.startswith("id") | cross_tab_prop.columns.str.startswith("cod")|cross_tab_prop.columns.str.startswith("nome")|cross_tab_prop.columns.str.startswith("escola") |cross_tab_prop.columns.str.startswith("uf")|cross_tab_prop.columns.str.startswith("municipio")
+    df_col = cross_tab_prop.loc[:,filter_column]
+    filter_column = df_col.columns.str.endswith("V") | df_col.columns.str.startswith("id") | df_col.columns.str.startswith("cod")|df_col.columns.str.startswith("nome")|df_col.columns.str.startswith("escola") |df_col.columns.str.startswith("uf")|df_col.columns.str.startswith("municipio")
+    df_col = df_col.loc[:, filter_column]
+    #df_col.info()
+    
+    df_col['E_ESCV'] = (df_col['E_ESC2V'] +df_col['E_ESC2V'])/2
+    df_col['E_PROFV'] = (df_col['E_PROF1V'] +df_col['E_PROF1V'])/2
+    df_col['E_FAMV'] = (df_col['E_FAM1V'] +df_col['E_FAM1V'])/2
+    df_col['E_COMV'] = (df_col['E_COM1V'] +df_col['E_COM2V']+df_col['E_COM3V'])/3
+    df_col['E_ESTV'] = (df_col['E_EST1V'] +df_col['E_EST2V']+df_col['E_EST3V'])/3
+    
+    
+    filter = cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO'
+    escola_fator = cross_tab_prop[filter]
+    
+    
+    filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064)
+    turma_fator = cross_tab_prop[filter]
+
+    
+    filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
+    aluno_fator = cross_tab_prop[filter]
+
+    
+    cols = escola_fator.loc[:, escola_fator.columns.str.startswith("E_")]
+    cols = cols.loc[:, cols.columns.str.endswith("V")]
+    r = 1
+    c = 1
+    n = 1
+    tracer = {}
+
+    for (columnName, columnData) in cols.iteritems():
+        
+        cols[columnName] = cols[columnName].astype(np.float16)
+        mean = cols[columnName].mean()
+        #print(mean)
+        #print('Column Contents : ', columnData.values)
+        #print('Column Name : ', columnName)
+        nameC = columnName
+        nameC = nameC.replace('V',"")
+        #print('Column Name whitout C : ', nameC)
+        f2 = fatores[fatores['Fator'] == nameC]
+        f2
+        a1 = f2['Medio_Baixo'].values[0] / 3
+        a2 = a1 * 2
+        a3 = a1 * 3
+        
+        
+        b = f2['Medio_Baixo'].values[0]
+        b1 = b
+        b2 = (b1 /3) + b
+        b3 = (b1 * 2) + b
+        
+        c = f2['Medio_Alto'].values[0]
+        c1 = c
+        c2 = (c1 / 3) + c
+        c3 = (c1 * 2) + c
+        
+        tracer[n] = go.Indicator(
+            mode = "gauge+number+delta",
+            value = mean,
+            domain = {'x': [0, 1], 'y': [0, 1]},
+            title = {'text': columnName, 'font': {'size': 24}},
+            #reference é pode ser a média geral
+            delta = {'reference': 4, 'increasing': {'color': "RebeccaPurple"}},
+            gauge = {
+                'axis': {'range': [None, 7], 'tickwidth': 1, 'tickcolor': "darkblue"},
+                'bar': {'color': "darkblue"},
+                'bgcolor': "red",
+                'borderwidth': 2,
+                'bordercolor': "gray",
+                'steps': [
+                    {'range': [0, a1], 'color': 'green'},
+                    {'range': [a1, a2], 'color': '#00cc96'},
+                    {'range': [a2, a3], 'color': '#b6e880'},
+                    
+                    {'range': [a3, b1], 'color': 'rgb(255,255,179)'},
+                    {'range': [b1, b2], 'color': 'yellow'},
+                    {'range': [b2, b3], 'color': 'yellow'},
+                    
+                    {'range': [b3, c1], 'color': '#ff9900'},
+                    {'range': [c1, c2], 'color': 'red'},
+                    {'range': [c2, c3], 'color': 'red'},
+                    {'range': [c3, 7], 'color': 'red'}
+
+                ],
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                    'value': 490}})
+        r = 1
+        c = 1
+        n = n + 1
+
+
+
+    fig = make_subplots(
+        rows=8,
+        cols=3,
+        specs=[[{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+              [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
+
+
+        ],
+        )
+    for i in range (1, 13):
+            if(c%3 != 0):
+                #fig.append_trace(trace1, row=1, col=1)
+                #fig.append_trace(trace, row=r, col=c)
+                #r = r + 1
+                #print ('if, r: ', r, ' C: ', c)
+                fig.append_trace(tracer[i], row=r, col=c)
+                c = c + 1
+
+            else:
+                #print ('else, r: ', r, ' C: ', c)
+                fig.append_trace(tracer[i], row=r, col=c)
+                c = 1
+                r = r + 1
+
+                #fig.append_trace(trace, row=r, col=c)
+
+    fig.update_layout(height=1400, width=1200, title_text="Fatores Escola Dalila Leão")
+    #fig.show()
+    return fig
+        
