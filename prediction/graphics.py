@@ -874,21 +874,7 @@ def velocimetro_fator():
         nameC = nameC.replace('V',"")
         #print('Column Name whitout C : ', nameC)
         f2 = fatores[fatores['Fator'] == nameC]
-        f2
-        a1 = f2['Medio_Baixo'].values[0] / 3
-        a2 = a1 * 2
-        a3 = a1 * 3
         
-        
-        b = f2['Medio_Baixo'].values[0]
-        b1 = b
-        b2 = (b1 /3) + b
-        b3 = (b1 * 2) + b
-        
-        c = f2['Medio_Alto'].values[0]
-        c1 = c
-        c2 = (c1 / 3) + c
-        c3 = (c1 * 2) + c
         
         tracer[n] = go.Indicator(
             mode = "gauge+number+delta",
@@ -896,7 +882,7 @@ def velocimetro_fator():
             domain = {'x': [0, 1], 'y': [0, 1]},
             title = {'text': columnName, 'font': {'size': 24}},
             #reference é pode ser a média geral
-            delta = {'reference': 4, 'increasing': {'color': "RebeccaPurple"}},
+            delta = {'reference': f2['Medio_Baixo'].values[0], 'increasing': {'color': "RebeccaPurple"}},
             gauge = {
                 'axis': {'range': [None, 7], 'tickwidth': 1, 'tickcolor': "darkblue"},
                 'bar': {'color': "darkblue"},
@@ -904,19 +890,10 @@ def velocimetro_fator():
                 'borderwidth': 2,
                 'bordercolor': "gray",
                 'steps': [
-                    {'range': [0, a1], 'color': 'green'},
-                    {'range': [a1, a2], 'color': '#00cc96'},
-                    {'range': [a2, a3], 'color': '#b6e880'},
+                    {'range': [0, f2['Medio_Baixo'].values[0]], 'color': 'green'},
+                    {'range': [f2['Medio_Baixo'].values[0], f2['Medio_Alto'].values[0]], 'color': 'yellow'},
+                    {'range': [f2['Medio_Alto'].values[0], 7], 'color': 'red'}
                     
-                    {'range': [a3, b1], 'color': 'rgb(255,255,179)'},
-                    {'range': [b1, b2], 'color': 'yellow'},
-                    {'range': [b2, b3], 'color': 'yellow'},
-                    
-                    {'range': [b3, c1], 'color': '#ff9900'},
-                    {'range': [c1, c2], 'color': 'red'},
-                    {'range': [c2, c3], 'color': 'red'},
-                    {'range': [c3, 7], 'color': 'red'}
-
                 ],
                 'threshold': {
                     'line': {'color': "red", 'width': 4},
@@ -929,17 +906,12 @@ def velocimetro_fator():
 
 
     fig = make_subplots(
-        rows=8,
+        rows=4,
         cols=3,
         specs=[[{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
                [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
                [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
-               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
-               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
-               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
-               [{'type' : 'indicator'}, {'type' : 'indicator'}, {'type' : 'indicator'}],
-
 
         ],
         )
