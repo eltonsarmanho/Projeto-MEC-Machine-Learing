@@ -1055,8 +1055,9 @@ def velocimetro_dimensao():
         
 def media_dimensoes():
     #quantidade de digitalizações por ciclo:
-    df = pd.read_json(get_dimensoes_geral());
-    df = df.groupby(['fatores_dimensões']).mean()
-    df = df.reset_index()
+    df = pd.read_json(get_dimensoes_geral())
+    df = df.groupby(['fatores_dimensões'])['value'].mean()
+    #df = df.reset_index()
+    df = df.to_frame().reset_index()
     df.columns = ['Dimensão', 'Média Geral']
     return df
