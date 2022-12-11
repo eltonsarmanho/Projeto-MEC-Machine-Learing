@@ -64,7 +64,7 @@ def get_apa_ciclo():
     resultado = []
     with connections['default'].cursor() as cursor:
         consulta = '''
-            select count(distinct a.arquivos_separados), c.nome
+            select count(a.arquivos_separados), c.nome
                     from digitalizacoes_firebase.avaliacao a
                     left join digitalizacoes_firebase.ciclo c 
                     on a.ciclo_id = c.id 
