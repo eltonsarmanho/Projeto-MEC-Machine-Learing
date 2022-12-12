@@ -15,6 +15,8 @@ from prediction.conecta import *
 
 from django.core.management import call_command
 
+
+
 # Realizar Query
 # Carrega tabela municipios
 # municipios = pd.read_csv('/home/eltonss/Documents/MEC/data/municipio.csv');
@@ -46,6 +48,23 @@ data_apa_duplicate = data_apa.drop_duplicates(subset=['nome', 'level_pontuacao',
 NIVEL_ORTOGRAFICO = 'A: NÍVEL ORTOGRÁFICO';
 NIVEL_ALFABETICO = 'B: NÍVEL ALFABÉTICO';
 NIVEL_SILABICO = 'D: NÍVEL SILÁBICO';
+
+
+
+def con_db_caio():
+    conn = psycopg2.connect(host=config('PREDICTION_DB_HOST', ''), database=config('PREDICTION_DB_NAME', ''), user=config('PREDICTION_DB_USER', ''), password=config('PREDICTION_DB_PASSWORD', ''))
+    return conn
+
+
+def con_db_caio2(query):
+    conn = psycopg2.connect(host=config('PREDICTION_DB_HOST', ''), database=config('PREDICTION_DB_NAME', ''),
+        user=config('PREDICTION_DB_USER', ''), password=config('PREDICTION_DB_PASSWORD', ''))
+    cursor = conn.cursor()
+    conn.autocommit = True
+    cursor.execute(query)
+    result = cursor.fetchone()
+    
+    return result
 
 
 def graph_bar_pontuacao_uf():
@@ -249,10 +268,6 @@ def graph_test():
 
     return fig
 
-
-def con_db_caio():
-    conn = psycopg2.connect(host=config('PREDICTION_DB_HOST', ''), database=config('PREDICTION_DB_NAME', ''), user=config('PREDICTION_DB_USER', ''), password=config('PREDICTION_DB_PASSWORD', ''))
-    return conn
 
 
 def grafico_risco_escola_dimensoes_barras():
@@ -794,15 +809,6 @@ def table_apa_ciclo():
 
 
 
-def con_db_caio2(query):
-    conn = psycopg2.connect(host=config('PREDICTION_DB_HOST', ''), database=config('PREDICTION_DB_NAME', ''),
-        user=config('PREDICTION_DB_USER', ''), password=config('PREDICTION_DB_PASSWORD', ''))
-    cursor = conn.cursor()
-    conn.autocommit = True
-    cursor.execute(query)
-    result = cursor.fetchone()
-    
-    return result
 
 def velocimetro_fator():
     #dataframe para os indices fatores medio baixo e medio alto
@@ -1061,3 +1067,230 @@ def media_dimensoes():
     df = df.to_frame().reset_index()
     df.columns = ['Dimensão', 'Média Geral']
     return df
+
+def digitalizacoes_apa():
+
+    #inicio = time.time()
+
+    ##############Descritivo Digitalizacoes####################
+    query = 'SELECT count(DISTINCT arquivos_separados) FROM digitalizacoes_firebase.avaliacao WHERE arquivos_separados IS NOT NULL;'
+    #data_digitalizacoes = connection(query)
+    v1 = con_db_caio2(query)
+
+    query = 'SELECT count(*) FROM digitalizacoes_firebase.avaliacao WHERE arquivos_separados IS NULL;'
+    #data_digitalizacoes = connection(query)
+    v2 = con_db_caio2(query)
+
+    #v1 = df_drop_duplicates['arquivos_separados'].count()
+    #v2 = df_nan['arquivos_separados'].isna().sum()
+
+
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(['Redações Digitalizadas','Redações Não Digitalizadas']),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[v1, v2],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Descritivo das digitalizações das Redações",title_x=0.5) 
+    #fim = time.time()
+    #print(fim - inicio)
+    #fig.show()
+    return fig
+
+def dem_quantidades():
+    query = 'SELECT * FROM devolutivas_apa.municipio;'
+    #municipios =  con_db_caio2(query)
+    municipios = pd.read_sql(query, con_db_caio())
+    query = 'SELECT * FROM devolutivas_apa.dados_ia_apa;'
+    #data_apa = con_db_caio2(query)
+    data_apa = pd.read_sql(query, con_db_caio())
+
+    dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI',23:'CE',24:'RN',
+                  25:'PB',26:'PE',27:'AL',28:'SE',29:'BA',31:'MG',32:'ES',33:'RJ',35:'SP',41:'PR',42:'SC',43:'RS',50:'MS',
+                  51:'MT',52:'GO',53:'DF',}
+    data_apa = data_apa.replace({"cod_estado": dict_uf})
+
+    dict_municipio = {}
+    for code in set(data_apa['codigo_cidade']):
+        for codigo,nome in zip(municipios.id_municipio,municipios.nome):
+            if(code==codigo):
+                dict_municipio[code] = nome;
+    data_apa=data_apa.replace({'codigo_cidade': dict_municipio})
+    
+    
+    #Remover Duplicatas
+    data_apa_duplicate = data_apa.drop_duplicates(subset=['nome','level_pontuacao','created_at'])
+
+    result = data_apa_duplicate.groupby(['cod_estado',]).agg({'nome':["nunique"],"turma": ["nunique"],"codigo_cidade": ["nunique"],'escola': ["nunique"]},split_out=4)
+    result.reset_index(inplace=True)
+    result.columns = ['Estado','Quantidade de Alunos','Quantidade de Turmas','Quantidade de Cidades','Quantidade de Escolas']
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(result.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[result.Estado, result['Quantidade de Alunos'],result['Quantidade de Turmas'], result['Quantidade de Cidades'],result['Quantidade de Escolas']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Demostrativo da quantidade de Alunos, Turmas, Cidades e Escolas por Estado",title_x=0.5) 
+    
+    return fig
+
+def dem_quan_pont():
+    query = 'SELECT * FROM devolutivas_apa.dados_ia_apa;'
+    data_apa = pd.read_sql(query, con_db_caio())
+
+
+    data_apa_duplicate = data_apa.drop_duplicates(subset=['nome','level_pontuacao','created_at'])
+
+    df = data_apa_duplicate.groupby(['cod_estado']).agg({'codigo_cidade': lambda x: x.nunique(),
+                                                         "escola": lambda x: x.nunique(),
+                                                          'nome': lambda x: x.nunique()})
+
+    df = df.reset_index()
+    df.columns = ['cod_estado','N° de Cidades','N° de Escolas','N° de Estudantes']
+
+    cross_tab_prop = pd.crosstab(index=data_apa_duplicate['cod_estado'],
+                                 columns=data_apa_duplicate['level_pontuacao'],
+                                 normalize="index")
+
+    cross_tab = pd.crosstab(index=data_apa_duplicate['cod_estado'],columns=data_apa_duplicate['level_pontuacao'],)
+
+    cross_tab_prop.reset_index(inplace=True)
+
+    df_aux = pd.merge(df,cross_tab_prop[['cod_estado','A','B','D']],on='cod_estado', how='left')
+    df_aux.rename(columns={'cod_estado': 'Estado',
+                           'A':'Pontuação A(%)',
+                           'B':'Pontuação B(%)',
+                           'D':'Pontuação D(%)'}, inplace=True)
+
+    #Add Linha Brasil
+    valorA = cross_tab[['A']].agg('sum', axis=0)[0]
+    valorB = cross_tab[['B']].agg('sum', axis=0)[0]
+    valorD = cross_tab[['D']].agg('sum', axis=0)[0]
+    total = valorA+valorB+valorD
+    df_new_row = pd.DataFrame.from_records({'Estado':['Brasil'], 
+                            'N° de Cidades':[df[['N° de Cidades']].agg('sum', axis=0)[0]],
+                            'N° de Escolas':[df[['N° de Escolas']].agg('sum', axis=0)[0]],
+                            'N° de Estudantes':[df[['N° de Estudantes']].agg('sum', axis=0)[0]],
+                             'Pontuação A(%)':[valorA/total],
+                             'Pontuação B(%)':[valorB/total],
+                             'Pontuação D(%)':[valorD/total], 
+                           })
+
+    df_aux = pd.concat([df_aux,df_new_row])
+
+    df_aux = df_aux.round(2)
+
+    #Plota Tabela
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df_aux.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[df_aux['Estado'],df_aux['N° de Cidades'], df_aux['N° de Escolas'], df_aux['N° de Estudantes'], 
+                           df_aux['Pontuação A(%)'],df_aux['Pontuação B(%)'],df_aux['Pontuação D(%)']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+
+    fig.update_layout(title_text="Demostrativo Quantidade de Estudantes por Estado considerando <b>Pontuação</b>",title_x=0.5) 
+    return fig
+
+def dem_quan_seg():
+    query = 'SELECT * FROM devolutivas_apa.dados_ia_apa;'
+    data_apa = pd.read_sql(query, con_db_caio())
+    data_apa_duplicate = data_apa.drop_duplicates(subset=['nome','level_pontuacao','created_at'])
+
+    cross_tab_segmentacao = pd.crosstab(index=data_apa_duplicate['cod_estado'],
+                                 columns=data_apa_duplicate['level_segmentacao'])
+    cross_tab_segmentacao.reset_index(inplace=True)
+    cross_tab_segmentacao.columns = ['Estado','Pontuação A','Pontuação B','Pontuação C']
+
+    fig = go.Figure(data=[go.Table(header=dict(values=list(cross_tab_segmentacao.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+                   cells=dict(values=[cross_tab_segmentacao['Estado'],
+                                      cross_tab_segmentacao['Pontuação A'],
+                                      cross_tab_segmentacao['Pontuação B'],
+                                      cross_tab_segmentacao['Pontuação C']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Demostrativo Quantidade de Alunos por Estado considerando <b>Segmento</b>",title_x=0.5) 
+    return fig
+
+def dem_quan_dig_status():
+    query = 'SELECT * FROM devolutivas_apa.dados_ia_apa;'
+    data_apa = pd.read_sql(query, con_db_caio())
+    data_apa_duplicate = data_apa.drop_duplicates(subset=['nome','level_pontuacao','created_at'])
+
+    result = data_apa_duplicate.groupby(['state']).agg({'state':["count"]},split_out=4)
+    result.reset_index(inplace=True)
+    result.columns = ['Status da Digitalização','Quantidade']
+    fig = go.Figure(data=[go.Table(header=dict(values=list(result.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+                   cells=dict(values=[result['Status da Digitalização'],result['Quantidade']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Status Digitalizações da Base APA",title_x=0.5) 
+    return fig
+
+def desc_estado_sap():
+    ##################################Descritivo SAP##############################
+    sql_aluno ='SELECT id_aluno, id_turma FROM escolas.aluno'
+    sql_turma ='SELECT * FROM escolas.turma'
+    #sql_escola ='SELECT * FROM escolas.escola'
+    sql_escola = 'SELECT uf, cod_escola, municipio, cod_estado FROM escolas.escola'
+    #df = connection(sql_escola)
+    #data_aluno = pd.read_csv('/home/eltonss/Documents/MEC/data/aluno.csv');
+    data_aluno = pd.read_sql(sql_aluno, con_db_caio())
+    #data_turma = pd.read_csv('/home/eltonss/Documents/MEC/data/turma.csv'
+    data_turma  = pd.read_sql(sql_turma, con_db_caio())                   
+    #data_escola = pd.read_csv('/home/eltonss/Documents/MEC/data/escola.csv');
+    data_escola = pd.read_sql(sql_escola, con_db_caio())
+    sql_mun = 'SELECT * FROM devolutivas_apa.municipio;'
+    municipios =  pd.read_sql(sql_mun, con_db_caio())
+    
+    #Merge tabela aluno e turma pela chave estrangeira removendo colunas iguais nas tabelas
+    cols_to_use = data_turma.columns.difference(data_aluno.columns)
+    #print(cols_to_use)
+    data_aluno_turma = pd.merge(data_aluno, data_turma[cols_to_use], left_index=True, right_index=True, how='outer')
+    #data_aluno_turma = pd.merge(data_aluno, data_turma, on='id_turma')
+    data_escola.rename(columns={'cod_escola': 'id_escola',}, inplace=True)
+    #Merge tabela escola com dataframe aluno_turma
+    cols_to_use = data_escola.columns.difference(data_aluno_turma.columns)
+    #print(cols_to_use)
+    data_aluno_turma_escola = pd.merge(data_aluno_turma, data_escola[cols_to_use], 
+                                       left_index=True, right_index=True, how='outer')
+
+    dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI',23:'CE',24:'RN',
+                  25:'PB',26:'PE',27:'AL',28:'SE',29:'BA',31:'MG',32:'ES',33:'RJ',35:'SP',
+                  41:'PR',42:'SC',43:'RS',50:'MS',
+                  51:'MT',52:'GO',53:'DF',}
+    data_aluno_turma_escola = data_aluno_turma_escola.replace({"cod_estado": dict_uf})
+
+    dict_municipio = {}
+    for code in set(data_aluno_turma_escola['municipio']):
+        for codigo,nome in zip(municipios.id_municipio,municipios.nome):
+            if(code==codigo):
+                dict_municipio[code] = nome;
+    data_aluno_turma_escola=data_aluno_turma_escola.replace({'codigo_cidade': dict_municipio})
+
+    result = data_aluno_turma_escola.groupby(['cod_estado',]).agg({'id_aluno':["nunique"],"id_turma": ["nunique"],"municipio": ["nunique"],'id_escola': ["nunique"]},split_out=4)
+    result.reset_index(inplace=True)
+    result.columns = ['Estado','Quantidade de Alunos','Quantidade de Turmas','Quantidade de Cidades','Quantidade de Escolas']
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(result.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[result.Estado, result['Quantidade de Alunos'],result['Quantidade de Turmas'], result['Quantidade de Cidades'],result['Quantidade de Escolas']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Descritivo por Estado da Base SAP",title_x=0.5) 
+
+    return fig

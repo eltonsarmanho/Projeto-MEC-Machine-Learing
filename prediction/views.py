@@ -238,8 +238,14 @@ class GeralView(TemplateView):
         context = super(GeralView, self).get_context_data(**kwargs)
         from prediction.graphics import texto_sap_quant_est_esc
         from prediction.graphics import texto_apa_quant_est_esc
-        #from prediction.graphics import table_apa_ciclo
+        from prediction.graphics import table_apa_ciclo
         from prediction.graphics import media_dimensoes
+        from prediction.graphics import digitalizacoes_apa
+        from prediction.graphics import dem_quantidades
+        from prediction.graphics import dem_quan_pont
+        from prediction.graphics import dem_quan_seg
+        from prediction.graphics import dem_quan_dig_status
+        from prediction.graphics import desc_estado_sap
         #import time
         
         #inicio = time.time()
@@ -247,9 +253,17 @@ class GeralView(TemplateView):
         context['titulo'] = 'Visão geral dos sistemas atuais'
         context['text1'] = texto_sap_quant_est_esc()
         context['text2'] = texto_apa_quant_est_esc()
+        
 
-        #context['table1'] = table_apa_ciclo().to_html()
+        context['table1'] = table_apa_ciclo().to_html()
         context['table2'] = media_dimensoes().to_html()
+        context['table3'] = digitalizacoes_apa().to_html()
+        context['table4'] = dem_quantidades().to_html()
+        context['table5'] = dem_quan_pont().to_html()
+        context['table6'] = dem_quan_seg().to_html()
+        context['table7'] = dem_quan_dig_status().to_html()
+        context['table8'] = desc_estado_sap().to_html()
+
         #fim = time.time()
         #print(fim - inicio)
         return context
