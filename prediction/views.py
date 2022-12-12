@@ -21,6 +21,7 @@ class DimensaoViewSet(viewsets.ModelViewSet):
 class FatorViewSet(viewsets.ModelViewSet):
     """Fatores de risco para os alunos"""
 
+
     serializer_class = FatorSerializer
     http_method_names = ['get', 'post', 'put']
 
