@@ -36,4 +36,4 @@ ENV PATH="/usr/app/venv/bin:$PATH"
 RUN . ./venv/bin/activate
 RUN python manage.py collectstatic --no-input
 EXPOSE 5000
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "machinelearning.wsgi:application", "--log-level=debug"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "machinelearning.wsgi:application", "--log-level=debug", "--timeout=180", "--workers=3"]
