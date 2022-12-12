@@ -1073,9 +1073,10 @@ def digitalizacoes_apa():
     #inicio = time.time()
 
     ##############Descritivo Digitalizacoes####################
-    query = 'SELECT count(DISTINCT arquivos_separados) FROM digitalizacoes_firebase.avaliacao WHERE arquivos_separados IS NOT NULL;'
+    query = 'SELECT count(arquivos_separados) FROM digitalizacoes_firebase.avaliacao WHERE arquivos_separados IS NOT NULL group by arquivos_separados;'
     #data_digitalizacoes = connection(query)
     v1 = con_db_caio2(query)
+    v1 = len(v1)
 
     query = 'SELECT count(*) FROM digitalizacoes_firebase.avaliacao WHERE arquivos_separados IS NULL;'
     #data_digitalizacoes = connection(query)
