@@ -241,7 +241,7 @@ class GeralView(TemplateView):
         from prediction.graphics import table_apa_ciclo
         from prediction.graphics import media_dimensoes
         from prediction.graphics import digitalizacoes_apa
-        #from prediction.graphics import dem_quantidades
+        from prediction.graphics import dem_quantidades
         #from prediction.graphics import dem_quan_pont
         #from prediction.graphics import dem_quan_seg
         #from prediction.graphics import dem_quan_dig_status
@@ -258,7 +258,7 @@ class GeralView(TemplateView):
         context['table1'] = table_apa_ciclo().to_html()
         context['table2'] = media_dimensoes().to_html()
         context['table3'] = digitalizacoes_apa().to_html()
-        #context['table4'] = dem_quantidades().to_html()
+        context['table4'] = dem_quantidades().to_html()
         #context['table5'] = dem_quan_pont().to_html()
         #context['table6'] = dem_quan_seg().to_html()
         #context['table7'] = dem_quan_dig_status().to_html()
