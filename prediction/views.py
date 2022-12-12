@@ -243,9 +243,9 @@ class GeralView(TemplateView):
         from prediction.graphics import digitalizacoes_apa
         from prediction.graphics import dem_quantidades
         from prediction.graphics import dem_quan_pont
-        #from prediction.graphics import dem_quan_seg
-        #from prediction.graphics import dem_quan_dig_status
-        #from prediction.graphics import desc_estado_sap
+        from prediction.graphics import dem_quan_seg
+        from prediction.graphics import dem_quan_dig_status
+        from prediction.graphics import desc_estado_sap
         #import time
         
         #inicio = time.time()
@@ -260,9 +260,9 @@ class GeralView(TemplateView):
         context['table3'] = digitalizacoes_apa().to_html()
         context['table4'] = dem_quantidades().to_html()
         context['table5'] = dem_quan_pont().to_html()
-        #context['table6'] = dem_quan_seg().to_html()
-        #context['table7'] = dem_quan_dig_status().to_html()
-        #context['table8'] = desc_estado_sap().to_html()
+        context['table6'] = dem_quan_seg().to_html()
+        context['table7'] = dem_quan_dig_status().to_html()
+        context['table8'] = desc_estado_sap().to_html()
 
         #fim = time.time()
         #print(fim - inicio)
