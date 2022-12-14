@@ -277,7 +277,7 @@ def grafico_risco_escola_dimensoes_barras():
     inner join escolas.turma t 
     on a.id_turma = t.id_turma 
     inner join escolas.escola e 
-    on t.id_escola = e.cod_escola WHERE escola = 'E M E F PROFESSORA DALILA LEAO'"""
+    on t.id_escola = e.cod_escola"""
     df = pd.read_sql(query, con_db_caio())
 
     df_dim = pd.DataFrame()
@@ -313,7 +313,7 @@ def grafico_risco_escola_dimensoes_barras2():
     inner join escolas.turma t 
     on a.id_turma = t.id_turma 
     inner join escolas.escola e 
-    on t.id_escola = e.cod_escola WHERE escola = 'E M E F PROFESSORA DALILA LEAO'"""
+    on t.id_escola = e.cod_escola"""
     df = pd.read_sql(query, con_db_caio())
 
     df_temp = df.groupby('E_ESCC')['id'].count()
@@ -516,7 +516,7 @@ def grafico_risco_escola_fatores_barras():
     inner join escolas.turma t 
     on a.id_turma = t.id_turma 
     inner join escolas.escola e 
-    on t.id_escola = e.cod_escola WHERE escola = 'E M E F PROFESSORA DALILA LEAO';"""
+    on t.id_escola = e.cod_escola"""
     df = pd.read_sql(query, con_db_caio())
 
     df_dim = pd.DataFrame()
@@ -556,12 +556,16 @@ def grafico_risco_escola_fatores_barras2():
     inner join escolas.turma t 
     on a.id_turma = t.id_turma 
     inner join escolas.escola e 
-    on t.id_escola = e.cod_escola WHERE escola = 'E M E F PROFESSORA DALILA LEAO';"""
+    on t.id_escola = e.cod_escola"""
     df = pd.read_sql(query, con_db_caio())
     df
 
     df_col = df.loc[:, df.columns.str.startswith("E_")]
     df_col = df_col.loc[:, df_col.columns.str.endswith("C")]
+    df_col = df_col.reset_index()
+    df_col = df_col.astype('int64')
+    #remover linha abaixo posteriormente
+    df_col.replace(0, 1, inplace=True)
     df_col
 
     df_dim_graph = pd.DataFrame(columns=['Dimensão', 'R1', 'R2', 'R3'])
@@ -569,7 +573,7 @@ def grafico_risco_escola_fatores_barras2():
 
     for x in df_for:
         # print(x)
-        df_temp = df.groupby(x)['id'].count()
+        df_temp = df_col[x].value_counts()
         df_temp = df_temp.reset_index()
         df_temp.columns = ['Classificação', 'Quant. Estudantes']
         df_temp['Dimensao'] = x
@@ -608,6 +612,7 @@ def grafico_risco_escola_fatores_barras2():
     df_dim_graph
     df_dim_graph = df_dim_graph.fillna(0)
     df_dim_graph = df_dim_graph.sort_values('R3', ascending=True)
+    df_dim_graph.drop(df_dim_graph.head(1).index,inplace=True)
     df_dim_graph.round(2)
 
     def trunc(values, decs=0):
