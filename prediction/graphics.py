@@ -785,7 +785,7 @@ def texto_sap_quant_est_esc():
     query = """SELECT  count(DISTINCT id_aluno)  FROM public.dimensoes_est"""
     row = con_db_caio2(query)
     texto = 'Atualmente existem ' +  str(row[0]) +  ' estudantes diferentes cadastrados no SAP '
-    query = """select e.cod_escola from public.dimensoes_est de
+    query = """select count(distinct(e.cod_escola)) from public.dimensoes_est de
 inner join escolas.aluno a 
 on de.id_aluno = a.id_aluno 
 inner join escolas.turma t 
