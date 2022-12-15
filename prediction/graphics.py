@@ -836,6 +836,7 @@ def velocimetro_fator():
     on t.id_escola = e.cod_escola"""
     #df = pd.read_sql(con_db_caio2(query))
     df = pd.read_sql(query, con_db_caio())
+    #df = connection(query)
 
     df = df.loc[:,~df.columns.duplicated()].copy()
     
@@ -860,8 +861,8 @@ def velocimetro_fator():
     df_col['E_COMV'] = (df_col['E_COM1V'] +df_col['E_COM2V']+df_col['E_COM3V'])/3
     df_col['E_ESTV'] = (df_col['E_EST1V'] +df_col['E_EST2V']+df_col['E_EST3V'])/3
     
-    
-    filter = cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO'
+    nomeEscola = 'E M E F PROFESSORA DALILA LEAO'
+    filter = cross_tab_prop['escola']==nomeEscola
     escola_fator = cross_tab_prop[filter]
     
     
@@ -879,17 +880,27 @@ def velocimetro_fator():
     c = 1
     n = 1
     tracer = {}
+    dictionary_name = {'E_ESC1V': 'Condições Materiais da Escola',
+                              'E_ESC2V':  'Condições Materiais do Estudante',
+                              'E_PROF1V': 'Inflexibilidade<br>Pedagógica',
+                              'E_PROF2V': 'Qualidade<br>Pedagógica',
+                              'E_FAM1V':  'Suporte<br>Familiar',
+                              'E_FAM2V':  'Gravidez-Parentalidade e Atividades Domésticas de Cuidado',
+                              'E_COM1V':  'Medidas Socioeducativas<br>Contextos de Violência',
+                              'E_COM2V':  'Distanciamento<br>Escola-Comunidade',
+                              'E_COM3V':  'Acessibilidade<br>Frequência Escolar',
+                              'E_EST1V':  'Significados da Escolarização',
+                              'E_EST2V':  'Aspectos Emocionais e Afetivos',
+                              'E_EST3V':  'Reprovações e Distorção Idade-Série',
+                              }
 
     for (columnName, columnData) in cols.iteritems():
         
         cols[columnName] = cols[columnName].astype(np.float16)
         mean = cols[columnName].mean()
-        #print(mean)
-        #print('Column Contents : ', columnData.values)
-        #print('Column Name : ', columnName)
+        
         nameC = columnName
         nameC = nameC.replace('V',"")
-        #print('Column Name whitout C : ', nameC)
         f2 = fatores[fatores['Fator'] == nameC]
         
         
@@ -897,7 +908,7 @@ def velocimetro_fator():
             mode = "gauge+number+delta",
             value = mean,
             domain = {'x': [0, 1], 'y': [0, 1]},
-            title = {'text': columnName, 'font': {'size': 24}},
+            title = {'text': dictionary_name[columnName], 'font': {'size': 18}},
             #reference é pode ser a média geral
             delta = {'reference': f2['Medio_Baixo'].values[0], 'increasing': {'color': "RebeccaPurple"}},
             gauge = {
@@ -949,7 +960,7 @@ def velocimetro_fator():
 
                 #fig.append_trace(trace, row=r, col=c)
 
-    fig.update_layout(height=1400, width=1200, title_text="Fatores Escola Dalila Leão")
+    fig.update_layout(height=1000, width=1200,title_y=0.99,title_x=0.5, title_text="<b>Fatores da {0}</b>".format(nomeEscola))
     #fig.show()
     return fig
 
