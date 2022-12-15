@@ -975,6 +975,11 @@ def velocimetro_dimensao():
     # filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
     # aluno_dimensao = cross_tab_prop[filter]
 
+    dictionary_name = { 'E-ESC':   'Dimensão Estudante-Escola',
+                        'E-PROF': 'Dimensão Estudante-Profissionais',
+                        'E-FAM' : 'Dimensão Estudante-Familia',
+                        'E-COM' : 'Dimensão Estudante-Comunidade',
+                        'E-EST' : 'Dimensão Estudante-Estudante'}
 
     cols = escola_dimensao.loc[:, escola_dimensao.columns.str.startswith("E_")]
     cols = cols.loc[:, cols.columns.str.endswith("V")]
@@ -999,7 +1004,7 @@ def velocimetro_dimensao():
             mode="gauge+number+delta",
             value=mean,
             domain={'x': [0, 1], 'y': [0, 1]},
-            title={'text': columnName, 'font': {'size': 24}},
+            title={'text': dictionary_name[columnName], 'font': {'size': 18}},
             # reference é pode ser a média geral
             delta={'reference': f2['Medio_Baixo'].values[0], 'increasing': {'color': "RebeccaPurple"}},
             gauge={
@@ -1033,7 +1038,7 @@ def velocimetro_dimensao():
                ],
     )
     for i in range(1, 6):
-        if (c % 3 != 0):
+        if (c % 2 != 0):
             # fig.append_trace(trace1, row=1, col=1)
             # fig.append_trace(trace, row=r, col=c)
             # r = r + 1
@@ -1049,7 +1054,7 @@ def velocimetro_dimensao():
 
             # fig.append_trace(trace, row=r, col=c)
 
-    fig.update_layout(height=800, width=1200, title_text="Dimensoes da {0}".format(nomeEscola))
+    fig.update_layout(height=1000, width=1200, title_text="Dimensoes da {0}".format(nomeEscola))
     # fig.show()
     return fig
         
