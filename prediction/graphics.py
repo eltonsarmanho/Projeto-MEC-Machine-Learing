@@ -885,7 +885,7 @@ def velocimetro_fator():
                               'E_PROF1V': 'Inflexibilidade<br>Pedagógica',
                               'E_PROF2V': 'Qualidade<br>Pedagógica',
                               'E_FAM1V':  'Suporte<br>Familiar',
-                              'E_FAM2V':  'Gravidez-Parentalidade e Atividades Domésticas de Cuidado',
+                              'E_FAM2V':  'Gravidez-Parentalidade<br>Atividades Domésticas de Cuidado',
                               'E_COM1V':  'Medidas Socioeducativas<br>Contextos de Violência',
                               'E_COM2V':  'Distanciamento<br>Escola-Comunidade',
                               'E_COM3V':  'Acessibilidade<br>Frequência Escolar',
