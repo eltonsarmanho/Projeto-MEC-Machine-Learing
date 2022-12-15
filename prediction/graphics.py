@@ -1054,7 +1054,7 @@ def velocimetro_dimensao():
 
             # fig.append_trace(trace, row=r, col=c)
 
-    fig.update_layout(height=1000, width=1200, title_text="Dimensoes da {0}".format(nomeEscola))
+    fig.update_layout(height=1000, width=1200,title_y=0.98,title_x=0.25, title_text="<b>Dimensoes da {0}</b>".format(nomeEscola))
     # fig.show()
     return fig
         
