@@ -782,10 +782,16 @@ def grafico_radar_sap():
     return fig
 
 def texto_sap_quant_est_esc():
-    query = """SELECT count(DISTINCT aluno) FROM dados_sap.dimensoes_alunos"""
+    query = """SELECT  count(DISTINCT id_aluno)  FROM public.dimensoes_est"""
     row = con_db_caio2(query)
     texto = 'Atualmente existem ' +  str(row[0]) +  ' estudantes diferentes cadastrados no SAP '
-    query = """SELECT count(DISTINCT aluno) FROM dados_sap.fatores_escola"""
+    query = """select count(distinct(e.cod_escola)) from public.dimensoes_est de
+inner join escolas.aluno a 
+on de.id_aluno = a.id_aluno 
+inner join escolas.turma t 
+on a.id_turma = t.id_turma 
+inner join escolas.escola e 
+on t.id_escola = e.cod_escola;"""
     row = con_db_caio2(query)
     texto = texto + 'de ' +  str(row[0]) +  ' escolas diferentes.'
     return texto
@@ -1297,6 +1303,6 @@ def desc_estado_sap():
                    fill_color='lavender',
                    align='left'))
     ])
-    fig.update_layout(title_text="Descritivo por Estado da Base SAP",title_x=0.5) 
+    fig.update_layout(title_text="Descritivo por Estado da Base Cadastrados Plataforma",title_x=0.5) 
 
     return fig
