@@ -866,12 +866,12 @@ def velocimetro_fator():
     escola_fator = cross_tab_prop[filter]
     
     
-    filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064)
-    turma_fator = cross_tab_prop[filter]
+    #filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064)
+    #turma_fator = cross_tab_prop[filter]
 
     
-    filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
-    aluno_fator = cross_tab_prop[filter]
+    #filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
+    #aluno_fator = cross_tab_prop[filter]
 
     
     cols = escola_fator.loc[:, escola_fator.columns.str.startswith("E_")]
