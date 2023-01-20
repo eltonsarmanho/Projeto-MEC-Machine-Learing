@@ -823,7 +823,7 @@ def table_apa_ciclo():
                    fill_color='lavender',
                    align='left'))
     ])
-    fig.update_layout(title_text="Descritivo das digitalizações das Redações", title_x=0.5)
+    fig.update_layout(title_text="Quantidade de Digitalizações por ciclo", title_x=0.5)
 
     return fig
 
@@ -1103,7 +1103,18 @@ def media_dimensoes():
     #df = df.reset_index()
     df = df.to_frame().reset_index()
     df.columns = ['Dimensão', 'Média Geral']
-    return df
+
+        # quantidade de digitalizações por ciclo:
+    fig = go.Figure(data=[go.Table(
+                header=dict(values=list(df.columns),
+                            fill_color='paleturquoise',
+                            align='left'),
+                cells=dict(values=[df['Dimensão'], df['Média Geral']],
+                           fill_color='lavender',
+                           align='left'))
+            ])
+    fig.update_layout(title_text="A Média geral por Dimensão", title_x=0.5)
+    return fig
 
 def digitalizacoes_apa():
 
