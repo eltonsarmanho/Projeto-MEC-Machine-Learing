@@ -815,7 +815,17 @@ def table_apa_ciclo():
     #quantidade de digitalizações por ciclo:
     df = pd.read_json(get_apa_ciclo());
     df.columns = ['Quant. de Digitalizações', 'Ciclo']
-    return df
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[df['Quant. de Digitalizações'], df['Ciclo']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Descritivo das digitalizações das Redações", title_x=0.5)
+
+    return fig
 
 
 
@@ -1158,7 +1168,8 @@ def dem_quantidades():
         header=dict(values=list(result.columns),
                     fill_color='paleturquoise',
                     align='left'),
-        cells=dict(values=[result.Estado, result['Quantidade de Alunos'],result['Quantidade de Turmas'], result['Quantidade de Cidades'],result['Quantidade de Escolas']],
+        cells=dict(values=[result.Estado, result['Quantidade de Alunos'],result['Quantidade de Turmas'],
+                           result['Quantidade de Cidades'],result['Quantidade de Escolas']],
                    fill_color='lavender',
                    align='left'))
     ])
