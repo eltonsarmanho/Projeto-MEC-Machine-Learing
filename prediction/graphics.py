@@ -815,6 +815,7 @@ def table_apa_ciclo():
     #quantidade de digitalizações por ciclo:
     df = pd.read_json(get_apa_ciclo());
     df.columns = ['Quant. de Digitalizações', 'Ciclo']
+    df = df.iloc[1:, :]
     fig = go.Figure(data=[go.Table(
         header=dict(values=list(df.columns),
                     fill_color='paleturquoise',
