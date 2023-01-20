@@ -1113,7 +1113,7 @@ def media_dimensoes():
                            fill_color='lavender',
                            align='left'))
             ])
-    fig.update_layout(title_text="A Média geral por Dimensão", title_x=0.5)
+    fig.update_layout(title_text="Média geral por Dimensão", title_x=0.5)
     return fig
 
 def digitalizacoes_apa():
