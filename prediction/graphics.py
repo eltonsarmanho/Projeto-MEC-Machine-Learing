@@ -815,7 +815,7 @@ def table_apa_ciclo():
     #quantidade de digitalizações por ciclo:
     df = pd.read_json(get_apa_ciclo());
     df.columns = ['Quant. de Digitalizações', 'Ciclo']
-    df = df.iloc[1:, :]
+    df = df.iloc[1:, :]#removendo Primeira linha.
     fig = go.Figure(data=[go.Table(
         header=dict(values=list(df.columns),
                     fill_color='paleturquoise',
@@ -1104,13 +1104,12 @@ def media_dimensoes():
     #df = df.reset_index()
     df = df.to_frame().reset_index()
     df.columns = ['Dimensão', 'Média Geral']
-
         # quantidade de digitalizações por ciclo:
     fig = go.Figure(data=[go.Table(
                 header=dict(values=list(df.columns),
                             fill_color='paleturquoise',
                             align='left'),
-                cells=dict(values=[df['Dimensão'], df['Média Geral']],
+                cells=dict(values=[df['Dimensão'], df['Média Geral'].round(decimals=2)],
                            fill_color='lavender',
                            align='left'))
             ])
