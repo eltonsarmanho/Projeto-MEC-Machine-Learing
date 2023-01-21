@@ -190,17 +190,23 @@ def graph_bar_valor_pontuacao_agregado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'A'].sort_values('Estado')
     c1, c2 = st.t.interval(confidence=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
 
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='A', marker_color='green'), 1, 1)
 
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'B'].sort_values('Estado')
     c1, c2 = st.t.interval(confidence=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='B', marker_color='yellow'), 1, 1)
 
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'D'].sort_values('Estado')
     c1, c2 = st.t.interval(confidence=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='D', marker_color='red'), 1, 1)
 
     fig['layout'].update(height=900, width=850, title='<b>Pontuação agrupada por Estado </b>', )
@@ -228,6 +234,8 @@ def graph_bar_valor_por_pontuacao_segmentado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'A'].sort_values('Estado')
     c1, c2 = st.t.interval(alpha=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
 
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='A', marker_color='green'), 1, 1)
     fig.add_hline(y=c1, line_dash='dot', row=1, col=1, annotation_text='Limite Inferior', annotation_position='right')
@@ -237,6 +245,8 @@ def graph_bar_valor_por_pontuacao_segmentado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'B'].sort_values('Estado')
     c1, c2 = st.t.interval(alpha=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='B', marker_color='yellow'), 2, 1)
 
     fig.add_hline(y=c1, line_dash='dot', row=2, col=1, annotation_text='Limite Inferior', annotation_position='right')
@@ -246,6 +256,8 @@ def graph_bar_valor_por_pontuacao_segmentado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'D'].sort_values('Estado')
     c1, c2 = st.t.interval(alpha=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='D', marker_color='red'), 3, 1)
     fig.add_hline(y=c1, line_dash='dot', row=3, col=1, annotation_text='Limite Inferior', annotation_position='right')
     fig.add_hline(y=c2, line_dash='dot', row=3, col=1, annotation_text='Limite Superior', annotation_position='right')
