@@ -303,7 +303,7 @@ class SapRadarView(TemplateView):
         context = super(SapRadarView, self).get_context_data(**kwargs)
         from prediction.graphics import plotRadarSAP
 
-        context['titulo'] = 'Radar por Nível'
+        context['titulo'] = 'SAP Radar'
         context['graph'] = plotRadarSAP().to_html()
 
         return context
