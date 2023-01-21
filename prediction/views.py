@@ -294,3 +294,16 @@ class VeloDimensoesView(TemplateView):
         context['graph'] = velocimetro_dimensao().to_html()
 
         return context
+
+
+class SapRadarView(TemplateView):
+    template_name = 'initial.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SapRadarView, self).get_context_data(**kwargs)
+        from prediction.graphics import plotRadarSAP
+
+        context['titulo'] = 'Radar por Nível'
+        context['graph'] = plotRadarSAP().to_html()
+
+        return context

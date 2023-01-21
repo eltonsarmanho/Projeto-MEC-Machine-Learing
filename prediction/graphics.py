@@ -1344,3 +1344,84 @@ def desc_estado_sap():
     fig.update_layout(title_text="Descritivo por Estado da Base Cadastrados Plataforma",title_x=0.5) 
 
     return fig
+
+def computeColumns(df):
+    cols = df.loc[:, df.columns.str.startswith("E_")]
+    cols = cols.loc[:, cols.columns.str.endswith("V")]
+    #cols.values.tolist()
+    cols.rename(columns={'E_ESCV': 'Estudante-Escola', 'E_PROFV': 'Estudante-Profissionais da Escola',
+                                 'E_FAMV': 'Estudante-Familia', 'E_COMV': 'Estudante-Comunidade'
+                                , 'E_ESTV': 'Estudante-Estudante'
+                                }, inplace=True)
+
+    cols = pd.DataFrame(cols.mean().to_dict(),index=[cols.index.values[-1]])
+    return cols
+
+
+def plotRadarSAP():
+    query = """select * from public.dimensoes_est de
+    inner join escolas.aluno a 
+    on de.id_aluno = a.id_aluno 
+    inner join escolas.turma t 
+    on a.id_turma = t.id_turma 
+    inner join escolas.escola e 
+    on t.id_escola = e.cod_escola"""
+
+    df = pd.read_sql(query, con_db_caio())
+
+    # Remover colunas iguais
+    df = df.loc[:, ~df.columns.duplicated()].copy()
+
+    # Processamento no contexto nacional
+
+    cols = computeColumns(df)
+    dimensoes = list(cols.columns)
+    dimensoes = [*dimensoes, dimensoes[0]]
+
+    esc = cols.values.flatten().tolist()
+    esc = [*esc, esc[0]]
+
+    # Processamento no contexto Escolar
+    nome_Escola = 'E M E F PROFESSORA DALILA LEAO'
+
+    filter = df['escola'] == nome_Escola
+    df_escola = df[filter]
+
+    cols_escola = computeColumns(df_escola)
+
+    dimensoes_escola = list(cols_escola.columns)
+    dimensoes_escola = [*dimensoes_escola, dimensoes_escola[0]]
+
+    esc_escola = cols_escola.values.flatten().tolist()
+    esc_escola = [*esc_escola, esc_escola[0]]
+
+    # Processamento no contexto do Aluno
+    # Pode usar id_aluno ou nome do aluno
+    filter = ((df['escola'] == nome_Escola) & (df['nome_aluno'] == 'Jeferson Oliveira dos Santos'))
+
+    df_estudante = df[filter]
+
+    cols_estudante = computeColumns(df_estudante)
+
+    dimensoes_estudante = list(cols_estudante)
+    dimensoes_estudante = [*dimensoes_estudante, dimensoes_estudante[0]]
+
+    esc_estudante = cols_estudante.values.flatten().tolist()
+    esc_estudante = [*esc_estudante, esc_estudante[0]]
+    # print(dimensoes_estudante,esc_estudante)
+
+    fig = go.Figure(
+        data=[
+            go.Scatterpolar(r=esc_estudante, theta=dimensoes_estudante, name='Estudante'),
+            go.Scatterpolar(r=esc_escola, theta=dimensoes_escola, name='Escola'),
+            go.Scatterpolar(r=esc, theta=dimensoes, name='Nacional'),
+
+        ],
+        layout=go.Layout(
+            title_y=0.98, title_x=0.25,
+            title=go.layout.Title(text='Estudante em Risco - ' + nome_Escola),
+            polar={'radialaxis': {'visible': True}},
+            showlegend=True
+        )
+    )
+    return fig
