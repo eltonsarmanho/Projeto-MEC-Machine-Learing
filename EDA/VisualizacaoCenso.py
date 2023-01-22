@@ -13,6 +13,7 @@ from sklearn import preprocessing
 from sklearn.preprocessing import StandardScaler
 import os
 os.environ["QT_QPA_PLATFORM"] = "wayland"
+import re
 
 def loadData(url):
     try:
@@ -264,16 +265,21 @@ if __name__ == '__main__':
     url_2019 = '../Dataset/2019/inep_saeb_merge_2019.csv'
     url_2017 = '../Dataset/2017/inep_saeb_merge_2017.csv'
     data_1 = loadData(url_2019);
+    lst = []
+    for item in list(data_1.NO_ENTIDADE):
+        matches = re.findall(r'\"(.+?)\"', item)  # match text between two quotes
+        lst.append(matches[0])
+    data_1.NO_ENTIDADE = lst
     #data_2 = loadData(url_2017);
 
     #columns = data_2.columns.difference(data_2.columns)
     #print(columns)
 
+
     dataframe_1 = preprocessamento(data_1)
     #dataframe_2 = preprocessamento(data_2)
-
     dataframe_1 = runAnaliseFactorial(dataframe_1)
     #dataframe_2 = runAnaliseFactorial(dataframe_2)
 
     #mediaByRegiaoComFator(dataframe_1)
-    mediaByRegiaoAnual(dataframe_1)
+    #mediaByRegiaoAnual(dataframe_1)
