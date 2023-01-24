@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import psycopg2
 import random
 from decouple import config
-
+import sys
 
 
 from plotly.subplots import make_subplots
@@ -1433,6 +1433,80 @@ def plotRadarSAP():
             title_y=0.98, title_x=0.25,
             title=go.layout.Title(text='Estudante em Risco - ' + nome_Escola),
             polar={'radialaxis': {'visible': True}},
+            showlegend=True
+        )
+    )
+    return fig
+
+def loadData(url):
+    try:
+        dataset = pd.read_csv(url,delimiter='\t',)
+        print(dataset.shape)
+        dict_uf= {11:'RO',12:'AC',13:'AM',14:'RR',15:'PA',16:'AP',17:'TO',21:'MA',22:'PI',23:'CE',24:'RN',
+              25:'PB',26:'PE',27:'AL',28:'SE',29:'BA',31:'MG',32:'ES',33:'RJ',35:'SP',41:'PR',42:'SC',43:'RS',50:'MS',
+              51:'MT',52:'GO',53:'DF',}
+        dataset = dataset.replace({"ID_UF": dict_uf})
+        return dataset;
+    except:
+        print("Oops!", sys.exc_info()[0], "occurred.")
+
+def plotRadarCensoSaeb():
+    # Carrega dados
+    path_file = 'https://raw.githubusercontent.com/eltonsarmanho/GoogleFitDataFlow/main/data/inep_saeb_merge_fatorial_2019.csv'
+    df = loadData(path_file)
+    # Processamento no contexto nacional
+    # df.drop('Acessibilidade', axis=1,inplace=True);
+    # Agrupar por Nacional
+    cols = ['Estrutura', 'PED', 'LibrasBraile', 'TratamentoLixo', 'PCD', 'Acessibilidade', 'Internet', 'Transporte']
+    # cols = ['Estrutura','PED','LibrasBraile','TratamentoLixo','PCD','Internet','Transporte']
+
+    data_brasil_fatores = pd.DataFrame(df[cols].mean().to_dict(), index=[df[cols].index.values[-1]])
+
+    dimensoes = list(data_brasil_fatores.columns)
+    dimensoes = [*dimensoes, dimensoes[0]]
+
+    esc = data_brasil_fatores.values.flatten().tolist()
+    esc = [*esc, esc[0]]
+
+    # Processamento no contexto Estadual
+    filter = (df['ID_UF'] == 'PA')
+    data_estado_ = df[filter]
+
+    data_estado_fatores = pd.DataFrame(data_estado_[cols].mean().to_dict(), index=[data_estado_[cols].index.values[-1]])
+
+    dimensoes_estado = list(data_estado_fatores.columns)
+    dimensoes_estado = [*dimensoes_estado, dimensoes_estado[0]]
+
+    esc_estado = data_estado_fatores.values.flatten().tolist()
+    esc_estado = [*esc_estado, esc_estado[0]]
+
+    # Processamento no contexto Escolar
+
+    nome_Escola = 'E M E F PROFESSORA DALILA LEAO'
+    # nome_Escola = 'E M E F E PROF GENEROSA'
+    filter = ((df['ID_UF'] == 'PA') & (df.NO_ENTIDADE == nome_Escola))
+    data_escola_ = df[filter]
+
+    data_escola_fatores = pd.DataFrame(data_escola_[cols].mean().to_dict(),
+                                       index=[data_escola_[cols].index.values[-1]])
+
+    dimensoes_escola = list(data_escola_fatores.columns)
+    dimensoes_escola = [*dimensoes_escola, dimensoes_escola[0]]
+
+    esc_escola = data_escola_fatores.values.flatten().tolist()
+    esc_escola = [*esc_escola, esc_escola[0]]
+
+    fig = go.Figure(
+        data=[
+            go.Scatterpolar(r=esc_estado, theta=dimensoes_estado, name='Estado'),
+            go.Scatterpolar(r=esc_escola, theta=dimensoes_escola, name='Escola'),
+            go.Scatterpolar(r=esc, theta=dimensoes, name='Nacional'),
+
+        ],
+        layout=go.Layout(
+            title_y=0.98, title_x=0.25,
+            title=go.layout.Title(text='Fatores SAEB-CENSO - ' + nome_Escola),
+            polar={'radialaxis': {'visible': False}},
             showlegend=True
         )
     )
