@@ -14,6 +14,7 @@ from plotly.subplots import make_subplots
 from prediction.conecta import *
 
 from django.core.management import call_command
+from django.conf import settings
 
 
 
@@ -1441,7 +1442,7 @@ def plotRadarSAP():
 def plotRadarCensoSaeb():
         # Carrega dados
         # path_file = 'https://raw.githubusercontent.com/eltonsarmanho/GoogleFitDataFlow/main/data/inep_saeb_merge_fatorial_2019.csv'
-        path_file = '../Dataset/inep_saeb_merge_fatorial_2019.csv'
+        path_file = settings.BASE_DIR / 'Dataset/inep_saeb_merge_fatorial_2019.csv'
 
         dataset = pd.read_csv(path_file, delimiter='\t', )
         dict_uf = {11: 'RO', 12: 'AC', 13: 'AM', 14: 'RR', 15: 'PA', 16: 'AP', 17: 'TO', 21: 'MA', 22: 'PI', 23: 'CE',
