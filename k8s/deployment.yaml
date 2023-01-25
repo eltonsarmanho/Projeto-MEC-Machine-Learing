@@ -42,7 +42,7 @@ spec:
               - key: node_pool
                 operator: In
                 values:
-                - mec-pool-stg-highmem
+                - mec-pool-stg-highcpu
       containers:
       - name: apa-machine-learning
         image: {{image}}
