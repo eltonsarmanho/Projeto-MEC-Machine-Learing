@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import psycopg2
 import random
 from decouple import config
-
+import sys
 
 
 from plotly.subplots import make_subplots
@@ -190,17 +190,23 @@ def graph_bar_valor_pontuacao_agregado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'A'].sort_values('Estado')
     c1, c2 = st.t.interval(confidence=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
 
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='A', marker_color='green'), 1, 1)
 
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'B'].sort_values('Estado')
     c1, c2 = st.t.interval(confidence=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='B', marker_color='yellow'), 1, 1)
 
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'D'].sort_values('Estado')
     c1, c2 = st.t.interval(confidence=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='D', marker_color='red'), 1, 1)
 
     fig['layout'].update(height=900, width=850, title='<b>Pontuação agrupada por Estado </b>', )
@@ -228,6 +234,8 @@ def graph_bar_valor_por_pontuacao_segmentado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'A'].sort_values('Estado')
     c1, c2 = st.t.interval(alpha=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
 
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='A', marker_color='green'), 1, 1)
     fig.add_hline(y=c1, line_dash='dot', row=1, col=1, annotation_text='Limite Inferior', annotation_position='right')
@@ -237,6 +245,8 @@ def graph_bar_valor_por_pontuacao_segmentado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'B'].sort_values('Estado')
     c1, c2 = st.t.interval(alpha=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='B', marker_color='yellow'), 2, 1)
 
     fig.add_hline(y=c1, line_dash='dot', row=2, col=1, annotation_text='Limite Inferior', annotation_position='right')
@@ -246,6 +256,8 @@ def graph_bar_valor_por_pontuacao_segmentado():
     data = data_estado_pontuacao[data_estado_pontuacao['Pontuacao'] == 'D'].sort_values('Estado')
     c1, c2 = st.t.interval(alpha=0.90, df=len(data['Valor']) - 1, loc=np.mean(data['Valor']),
                            scale=st.sem(data['Valor']))
+    if c1 < 0:
+        c1 = 0;
     fig.add_trace(go.Bar(x=data['Estado'], y=data['Valor'], name='D', marker_color='red'), 3, 1)
     fig.add_hline(y=c1, line_dash='dot', row=3, col=1, annotation_text='Limite Inferior', annotation_position='right')
     fig.add_hline(y=c2, line_dash='dot', row=3, col=1, annotation_text='Limite Superior', annotation_position='right')
@@ -815,7 +827,18 @@ def table_apa_ciclo():
     #quantidade de digitalizações por ciclo:
     df = pd.read_json(get_apa_ciclo());
     df.columns = ['Quant. de Digitalizações', 'Ciclo']
-    return df
+    df = df.iloc[1:, :]#removendo Primeira linha.
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns),
+                    fill_color='paleturquoise',
+                    align='left'),
+        cells=dict(values=[df['Quant. de Digitalizações'], df['Ciclo']],
+                   fill_color='lavender',
+                   align='left'))
+    ])
+    fig.update_layout(title_text="Quantidade de Digitalizações por ciclo", title_x=0.5)
+
+    return fig
 
 
 
@@ -866,12 +889,12 @@ def velocimetro_fator():
     escola_fator = cross_tab_prop[filter]
     
     
-    filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064)
-    turma_fator = cross_tab_prop[filter]
+    #filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064)
+    #turma_fator = cross_tab_prop[filter]
 
     
-    filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
-    aluno_fator = cross_tab_prop[filter]
+    #filter = (cross_tab_prop['escola']=='E M E F PROFESSORA DALILA LEAO') & (cross_tab_prop['id_turma']==1064) & (cross_tab_prop['nome_aluno']=='Jeferson Oliveira dos Santos')
+    #aluno_fator = cross_tab_prop[filter]
 
     
     cols = escola_fator.loc[:, escola_fator.columns.str.startswith("E_")]
@@ -1093,7 +1116,17 @@ def media_dimensoes():
     #df = df.reset_index()
     df = df.to_frame().reset_index()
     df.columns = ['Dimensão', 'Média Geral']
-    return df
+        # quantidade de digitalizações por ciclo:
+    fig = go.Figure(data=[go.Table(
+                header=dict(values=list(df.columns),
+                            fill_color='paleturquoise',
+                            align='left'),
+                cells=dict(values=[df['Dimensão'], df['Média Geral'].round(decimals=2)],
+                           fill_color='lavender',
+                           align='left'))
+            ])
+    fig.update_layout(title_text="Média geral por Dimensão", title_x=0.5)
+    return fig
 
 def digitalizacoes_apa():
 
@@ -1158,7 +1191,8 @@ def dem_quantidades():
         header=dict(values=list(result.columns),
                     fill_color='paleturquoise',
                     align='left'),
-        cells=dict(values=[result.Estado, result['Quantidade de Alunos'],result['Quantidade de Turmas'], result['Quantidade de Cidades'],result['Quantidade de Escolas']],
+        cells=dict(values=[result.Estado, result['Quantidade de Alunos'],result['Quantidade de Turmas'],
+                           result['Quantidade de Cidades'],result['Quantidade de Escolas']],
                    fill_color='lavender',
                    align='left'))
     ])
@@ -1322,3 +1356,154 @@ def desc_estado_sap():
     fig.update_layout(title_text="Descritivo por Estado da Base Cadastrados Plataforma",title_x=0.5) 
 
     return fig
+
+def computeColumns(df):
+    cols = df.loc[:, df.columns.str.startswith("E_")]
+    cols = cols.loc[:, cols.columns.str.endswith("V")]
+    #cols.values.tolist()
+    cols.rename(columns={'E_ESCV': 'Estudante-Escola', 'E_PROFV': 'Estudante-Profissionais da Escola',
+                                 'E_FAMV': 'Estudante-Familia', 'E_COMV': 'Estudante-Comunidade'
+                                , 'E_ESTV': 'Estudante-Estudante'
+                                }, inplace=True)
+
+    cols = pd.DataFrame(cols.mean().to_dict(),index=[cols.index.values[-1]])
+    return cols
+
+
+def plotRadarSAP():
+    query = """select * from public.dimensoes_est de
+    inner join escolas.aluno a 
+    on de.id_aluno = a.id_aluno 
+    inner join escolas.turma t 
+    on a.id_turma = t.id_turma 
+    inner join escolas.escola e 
+    on t.id_escola = e.cod_escola"""
+
+    df = pd.read_sql(query, con_db_caio())
+
+    # Remover colunas iguais
+    df = df.loc[:, ~df.columns.duplicated()].copy()
+
+    # Processamento no contexto nacional
+
+    cols = computeColumns(df)
+    dimensoes = list(cols.columns)
+    dimensoes = [*dimensoes, dimensoes[0]]
+
+    esc = cols.values.flatten().tolist()
+    esc = [*esc, esc[0]]
+
+    # Processamento no contexto Escolar
+    nome_Escola = 'E M E F PROFESSORA DALILA LEAO'
+
+    filter = df['escola'] == nome_Escola
+    df_escola = df[filter]
+
+    cols_escola = computeColumns(df_escola)
+
+    dimensoes_escola = list(cols_escola.columns)
+    dimensoes_escola = [*dimensoes_escola, dimensoes_escola[0]]
+
+    esc_escola = cols_escola.values.flatten().tolist()
+    esc_escola = [*esc_escola, esc_escola[0]]
+
+    # Processamento no contexto do Aluno
+    # Pode usar id_aluno ou nome do aluno
+    filter = ((df['escola'] == nome_Escola) & (df['nome_aluno'] == 'Jeferson Oliveira dos Santos'))
+
+    df_estudante = df[filter]
+
+    cols_estudante = computeColumns(df_estudante)
+
+    dimensoes_estudante = list(cols_estudante)
+    dimensoes_estudante = [*dimensoes_estudante, dimensoes_estudante[0]]
+
+    esc_estudante = cols_estudante.values.flatten().tolist()
+    esc_estudante = [*esc_estudante, esc_estudante[0]]
+    # print(dimensoes_estudante,esc_estudante)
+
+    fig = go.Figure(
+        data=[
+            go.Scatterpolar(r=esc_estudante, theta=dimensoes_estudante, name='Estudante'),
+            go.Scatterpolar(r=esc_escola, theta=dimensoes_escola, name='Escola'),
+            go.Scatterpolar(r=esc, theta=dimensoes, name='Nacional'),
+
+        ],
+        layout=go.Layout(
+            title_y=0.98, title_x=0.25,
+            title=go.layout.Title(text='Estudante em Risco - ' + nome_Escola),
+            polar={'radialaxis': {'visible': True}},
+            showlegend=True
+        )
+    )
+    return fig
+
+def plotRadarCensoSaeb():
+        # Carrega dados
+        # path_file = 'https://raw.githubusercontent.com/eltonsarmanho/GoogleFitDataFlow/main/data/inep_saeb_merge_fatorial_2019.csv'
+        path_file = '../Dataset/inep_saeb_merge_fatorial_2019.csv'
+
+        dataset = pd.read_csv(path_file, delimiter='\t', )
+        dict_uf = {11: 'RO', 12: 'AC', 13: 'AM', 14: 'RR', 15: 'PA', 16: 'AP', 17: 'TO', 21: 'MA', 22: 'PI', 23: 'CE',
+                   24: 'RN',
+                   25: 'PB', 26: 'PE', 27: 'AL', 28: 'SE', 29: 'BA', 31: 'MG', 32: 'ES', 33: 'RJ', 35: 'SP', 41: 'PR',
+                   42: 'SC', 43: 'RS', 50: 'MS',
+                   51: 'MT', 52: 'GO', 53: 'DF', }
+        df = dataset.replace({"ID_UF": dict_uf})
+
+        # Processamento no contexto nacional
+        # Agrupar por Nacional
+        cols = ['Estrutura', 'PED', 'LibrasBraile', 'TratamentoLixo', 'PCD', 'Acessibilidade', 'Internet', 'Transporte']
+
+        data_brasil_fatores = pd.DataFrame(df[cols].mean().to_dict(), index=[df[cols].index.values[-1]])
+
+        dimensoes = list(data_brasil_fatores.columns)
+        dimensoes = [*dimensoes, dimensoes[0]]
+
+        esc = data_brasil_fatores.values.flatten().tolist()
+        esc = [*esc, esc[0]]
+
+        # Processamento no contexto Estadual
+        filter = (df['ID_UF'] == 'PA')
+        data_estado_ = df[filter]
+
+        data_estado_fatores = pd.DataFrame(data_estado_[cols].mean().to_dict(),
+                                           index=[data_estado_[cols].index.values[-1]])
+
+        dimensoes_estado = list(data_estado_fatores.columns)
+        dimensoes_estado = [*dimensoes_estado, dimensoes_estado[0]]
+
+        esc_estado = data_estado_fatores.values.flatten().tolist()
+        esc_estado = [*esc_estado, esc_estado[0]]
+
+        # Processamento no contexto Escolar
+
+        nome_Escola = 'E M E F PROFESSORA DALILA LEAO'
+        # nome_Escola = 'E M E F E PROF GENEROSA'
+        filter = ((df['ID_UF'] == 'PA') & (df.NO_ENTIDADE == nome_Escola))
+        data_escola_ = df[filter]
+
+        data_escola_fatores = pd.DataFrame(data_escola_[cols].mean().to_dict(),
+                                           index=[data_escola_[cols].index.values[-1]])
+
+        dimensoes_escola = list(data_escola_fatores.columns)
+        dimensoes_escola = [*dimensoes_escola, dimensoes_escola[0]]
+
+        esc_escola = data_escola_fatores.values.flatten().tolist()
+        esc_escola = [*esc_escola, esc_escola[0]]
+
+        fig = go.Figure(
+            data=[
+                go.Scatterpolar(r=esc_estado, theta=dimensoes_estado, name='Estado'),
+                go.Scatterpolar(r=esc_escola, theta=dimensoes_escola, name='Escola'),
+                go.Scatterpolar(r=esc, theta=dimensoes, name='Nacional'),
+
+            ],
+            layout=go.Layout(
+                title_y=0.98, title_x=0.25,
+                title=go.layout.Title(text='Fatores SAEB-CENSO - ' + nome_Escola),
+                polar={'radialaxis': {'visible': False}},
+                showlegend=True
+            )
+        )
+        return fig
