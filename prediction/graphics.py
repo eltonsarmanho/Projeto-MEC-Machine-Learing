@@ -1452,7 +1452,7 @@ def loadData(url):
 
 def plotRadarCensoSaeb():
     # Carrega dados
-    path_file = 'https://raw.githubusercontent.com/eltonsarmanho/GoogleFitDataFlow/main/data/inep_saeb_merge_fatorial_2019.csv'
+    path_file =  '../Dataset/inep_saeb_merge_fatorial_2019.csv'
     df = loadData(path_file)
     # Processamento no contexto nacional
     # df.drop('Acessibilidade', axis=1,inplace=True);
