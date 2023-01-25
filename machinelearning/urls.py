@@ -52,7 +52,7 @@ urlpatterns = [
     path('velofatores/', views.VeloFatoresView.as_view(), name='velofatores'),
     path('velodimensoes/', views.VeloDimensoesView.as_view(), name='velodimensoes'),
     path('radar/', views.SapRadarView.as_view(), name='radar'),
-    path('radarcensosaeb/', views.SapRadarViewSaebCenso.as_view(), name='radarcensosaeb'),
+    path('radarcensosaeb/', views.SapRadarSaebCensoView.as_view(), name='radarcensosaeb'),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

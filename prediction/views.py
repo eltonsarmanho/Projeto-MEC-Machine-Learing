@@ -308,11 +308,11 @@ class SapRadarView(TemplateView):
 
         return context
 
-class SapRadarViewSaebCenso(TemplateView):
+class SapRadarSaebCensoView(TemplateView):
     template_name = 'initial.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SapRadarViewSaebCenso, self).get_context_data(**kwargs)
+        context = super(SapRadarSaebCensoView, self).get_context_data(**kwargs)
         from prediction.graphics import plotRadarCensoSaeb
 
         context['titulo'] = 'Censo Saeb Radar'
