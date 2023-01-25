@@ -22,6 +22,7 @@ COPY --chown=python:python manage.py .
 COPY --chown=python:python prediction/* ./prediction/
 COPY --chown=python:python machinelearning/* ./machinelearning/
 COPY --chown=python:python prediction/ ./prediction/
+COPY --chown=python:python Dataset/ ./Dataset/
 COPY --chown=python:python machinelearning/ ./machinelearning/
 COPY --chown=python:python docker/settings.py machinelearning/settings.py
 # COPY --chown=python:python docker/urls.py machinelearning/urls.py
